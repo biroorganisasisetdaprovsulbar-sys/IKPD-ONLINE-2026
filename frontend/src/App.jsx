@@ -1,102 +1,84 @@
-import React from "react";
-
-export default function App() {
-  return (
-    <div style={styles.container}>
-
-      <aside style={styles.sidebar}>
-        <h2>IKPD</h2>
-        <p style={styles.logo}>ONLINE 2026</p>
-
-        <nav>
-          <div style={styles.menu}>🏠 Dashboard</div>
-          <div style={styles.menu}>🏢 Data OPD</div>
-          <div style={styles.menu}>📋 Indikator IKPD</div>
-          <div style={styles.menu}>📊 Penilaian</div>
-          <div style={styles.menu}>📁 Bukti Dukung</div>
-          <div style={styles.menu}>📑 Laporan</div>
-          <div style={styles.menu}>👤 Pengguna</div>
-        </nav>
-      </aside>
+import React, {useState} from "react";
 
 
-      <main style={styles.content}>
+export default function App(){
 
-        <header style={styles.header}>
-          <h1>Dashboard IKPD ONLINE 2026</h1>
-          <p>
-            Sistem Informasi Penilaian Indeks Kematangan Perangkat Daerah
-          </p>
-        </header>
+const [page,setPage]=useState("dashboard");
 
 
-        <section style={styles.cards}>
+return(
 
-          <Card title="Total OPD" value="42" />
-          <Card title="Indikator" value="100" />
-          <Card title="Progress" value="65%" />
-          <Card title="Status" value="Berjalan" />
-
-        </section>
+<div style={styles.container}>
 
 
-        <section style={styles.panel}>
+<aside style={styles.sidebar}>
 
-          <h2>Monitoring Penilaian IKPD</h2>
+<h2>IKPD</h2>
+<p>ONLINE 2026</p>
 
-          <table>
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>OPD</th>
-                <th>Status</th>
-                <th>Nilai</th>
-              </tr>
-            </thead>
 
-            <tbody>
+<div onClick={()=>setPage("dashboard")} style={styles.menu}>
+🏠 Dashboard
+</div>
 
-              <tr>
-                <td>1</td>
-                <td>Dinas Pendidikan</td>
-                <td>Selesai</td>
-                <td>86</td>
-              </tr>
 
-              <tr>
-                <td>2</td>
-                <td>Dinas Kesehatan</td>
-                <td>Proses</td>
-                <td>72</td>
-              </tr>
+<div onClick={()=>setPage("opd")} style={styles.menu}>
+🏢 Data OPD
+</div>
 
-              <tr>
-                <td>3</td>
-                <td>Bappeda</td>
-                <td>Belum</td>
-                <td>-</td>
-              </tr>
 
-            </tbody>
+<div onClick={()=>setPage("indikator")} style={styles.menu}>
+📋 Indikator IKPD
+</div>
 
-          </table>
 
-        </section>
+<div onClick={()=>setPage("penilaian")} style={styles.menu}>
+📊 Penilaian
+</div>
 
-      </main>
 
-    </div>
-  );
+<div style={styles.menu}>
+📁 Bukti Dukung
+</div>
+
+
+<div style={styles.menu}>
+📑 Laporan
+</div>
+
+
+<div style={styles.menu}>
+👤 Pengguna
+</div>
+
+
+</aside>
+
+
+
+<main style={styles.content}>
+
+
+{page==="dashboard" && <Dashboard/>}
+
+
+{page==="opd" && <DataOPD/>}
+
+
+{page==="indikator" &&
+<h2>Halaman Indikator IKPD</h2>
 }
 
 
-function Card({title,value}){
+{page==="penilaian" &&
+<h2>Halaman Penilaian IKPD</h2>
+}
 
-return (
 
-<div style={styles.card}>
-<h3>{title}</h3>
-<h1>{value}</h1>
+
+</main>
+
+
 </div>
 
 )
@@ -104,7 +86,157 @@ return (
 }
 
 
+
+
+function Dashboard(){
+
+return(
+
+<>
+
+<div style={styles.header}>
+
+<h1>Dashboard IKPD ONLINE 2026</h1>
+
+<p>
+Sistem Informasi Penilaian Indeks Kematangan Perangkat Daerah
+</p>
+
+</div>
+
+
+<div style={styles.cards}>
+
+<Card title="Total OPD" value="42"/>
+<Card title="Indikator" value="100"/>
+<Card title="Progress" value="65%"/>
+<Card title="Status" value="Berjalan"/>
+
+</div>
+
+
+</>
+
+)
+
+}
+
+
+
+
+function DataOPD(){
+
+const data=[
+
+{
+nama:"Dinas Pendidikan",
+status:"Selesai",
+progress:"100%"
+},
+
+{
+nama:"Dinas Kesehatan",
+status:"Proses",
+progress:"75%"
+},
+
+{
+nama:"Bappeda",
+status:"Proses",
+progress:"90%"
+},
+
+{
+nama:"Dinas PUPR",
+status:"Belum",
+progress:"20%"
+}
+
+];
+
+
+return(
+
+<div style={styles.panel}>
+
+
+<h1>Data OPD IKPD 2026</h1>
+
+
+<input 
+placeholder="Cari OPD..."
+style={styles.input}
+/>
+
+
+<table width="100%">
+
+<thead>
+
+<tr>
+
+<th>No</th>
+<th>Nama OPD</th>
+<th>Status</th>
+<th>Progress</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+
+{data.map((item,index)=>(
+
+<tr key={index}>
+
+<td>{index+1}</td>
+<td>{item.nama}</td>
+<td>{item.status}</td>
+<td>{item.progress}</td>
+
+</tr>
+
+))}
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+)
+
+}
+
+
+
+
+function Card({title,value}){
+
+return(
+
+<div style={styles.card}>
+
+<h3>{title}</h3>
+
+<h1>{value}</h1>
+
+</div>
+
+)
+
+}
+
+
+
 const styles={
+
 
 container:{
 display:"flex",
@@ -122,16 +254,11 @@ padding:"25px"
 },
 
 
-logo:{
-fontSize:"14px",
-marginBottom:"30px"
-},
-
-
 menu:{
-padding:"14px 5px",
+padding:"15px 5px",
+borderBottom:"1px solid #ffffff44",
 cursor:"pointer",
-borderBottom:"1px solid rgba(255,255,255,.2)"
+fontSize:"16px"
 },
 
 
@@ -160,17 +287,22 @@ marginTop:"25px"
 card:{
 background:"white",
 padding:"20px",
-borderRadius:"10px",
-boxShadow:"0 3px 10px #ddd"
+borderRadius:"10px"
 },
 
 
 panel:{
-marginTop:"30px",
 background:"white",
-padding:"25px",
+padding:"30px",
 borderRadius:"10px"
+},
+
+
+input:{
+padding:"12px",
+width:"300px",
+marginBottom:"20px"
 }
 
+
 }
-       
