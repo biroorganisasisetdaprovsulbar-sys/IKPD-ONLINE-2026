@@ -1,233 +1,304 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import "./Dashboard.css";
 
 
 function Dashboard(){
 
+
+const opd = [
+{
+nama:"Dinas Kesehatan",
+nilai:90,
+status:"Sangat Baik"
+},
+{
+nama:"Dinas Pendidikan",
+nilai:75,
+status:"Baik"
+},
+{
+nama:"Bappeda",
+nilai:65,
+status:"Perlu Perbaikan"
+},
+{
+nama:"Dinas PU",
+nilai:80,
+status:"Baik"
+},
+{
+nama:"Dinas Sosial",
+nilai:70,
+status:"Perlu Perbaikan"
+}
+];
+
+
+
 return (
 
-<div style={styles.container}>
+<div className="dashboard">
 
 
-<div style={styles.sidebar}>
+<div className="header-dashboard">
 
-<h2>IKPD</h2>
-<p>ONLINE 2026</p>
-
-<hr/>
-
-
-<Link style={styles.menu} to="/">
-🏠 Dashboard
-</Link>
-
-
-<Link style={styles.menu} to="/opd">
-🏢 Data OPD
-</Link>
-
-
-<Link style={styles.menu} to="/indikator">
-📄 Indikator IKPD
-</Link>
-
-
-<Link style={styles.menu} to="/penilaian">
-📊 Penilaian
-</Link>
-
-
-<Link style={styles.menu} to="/bukti">
-📁 Bukti Dukung
-</Link>
-
-
-<Link style={styles.menu} to="/laporan">
-📑 Laporan
-</Link>
-
-
-<Link style={styles.menu} to="/pengguna">
-👤 Pengguna
-</Link>
-
-
-</div>
-
-
-
-<div style={styles.content}>
-
-
-<div style={styles.header}>
-
-<h1>Dashboard IKPD ONLINE 2026</h1>
+<h1>
+Dashboard IKPD ONLINE 2026
+</h1>
 
 <p>
-Sistem Informasi Penilaian Indeks Kematangan Perangkat Daerah
+Sistem Informasi Indeks Kematangan Perangkat Daerah
 </p>
 
 </div>
 
 
 
-<div style={styles.cards}>
 
-<Card title="Total OPD" value="42"/>
+<div className="card-container">
 
-<Card title="Indikator" value="100"/>
 
-<Card title="Progress" value="65%"/>
+<div className="card">
 
-<Card title="Status" value="Berjalan"/>
+<h3>Total OPD</h3>
+
+<h2>
+{opd.length}
+</h2>
 
 </div>
 
 
 
-<div style={styles.panel}>
+<div className="card">
 
-<h2>Monitoring Penilaian IKPD</h2>
+<h3>Rata-rata</h3>
+
+<h2>
+76
+</h2>
+
+</div>
 
 
-<table width="100%">
+
+<div className="card green">
+
+<h3>Tertinggi</h3>
+
+<h2>
+90
+</h2>
+
+</div>
+
+
+
+<div className="card red">
+
+<h3>Terendah</h3>
+
+<h2>
+65
+</h2>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<div className="chart-container">
+
+
+<div className="chart-box">
+
+
+<h2>
+Grafik Nilai OPD
+</h2>
+
+
+<div className="bars">
+
+
+{
+opd.map((item,index)=>(
+
+
+<div className="bar-item" key={index}>
+
+
+<div 
+className="bar"
+style={{
+height:`${item.nilai*3}px`
+}}
+>
+
+
+</div>
+
+
+<span>
+{item.nilai}
+</span>
+
+
+<p>
+{item.nama}
+</p>
+
+
+</div>
+
+
+))
+
+}
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div className="pie-box">
+
+
+<h2>
+Status Evaluasi
+</h2>
+
+
+<div className="pie">
+
+
+</div>
+
+
+<div className="legend">
+
+
+<p>🟢 Sangat Baik</p>
+
+<p>🟡 Baik</p>
+
+<p>🔴 Perlu Perbaikan</p>
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div className="table-box">
+
+
+<h2>
+Daftar Nilai OPD
+</h2>
+
+
+<table>
+
 
 <thead>
 
 <tr>
+
 <th>No</th>
+
 <th>OPD</th>
-<th>Status</th>
+
 <th>Nilai</th>
+
+<th>Status</th>
+
+
 </tr>
 
 </thead>
 
 
+
 <tbody>
 
-<tr>
-<td>1</td>
-<td>Dinas Pendidikan</td>
-<td>Selesai</td>
-<td>86</td>
+
+{
+
+opd.map((item,index)=>(
+
+
+<tr key={index}>
+
+
+<td>
+{index+1}
+</td>
+
+
+<td>
+{item.nama}
+</td>
+
+
+<td>
+{item.nilai}
+</td>
+
+
+<td>
+{item.status}
+</td>
+
+
 </tr>
 
 
-<tr>
-<td>2</td>
-<td>Dinas Kesehatan</td>
-<td>Proses</td>
-<td>72</td>
-</tr>
+
+))
 
 
-<tr>
-<td>3</td>
-<td>Bappeda</td>
-<td>Belum</td>
-<td>-</td>
-</tr>
+}
 
 
 </tbody>
 
+
 </table>
 
 
-</div>
-
 
 </div>
 
 
-</div>
-
-)
-
-}
-
-
-
-function Card({title,value}){
-
-return (
-
-<div style={styles.card}>
-
-<h3>{title}</h3>
-
-<h1>{value}</h1>
 
 </div>
 
-)
 
-}
-
-
-
-const styles={
-
-container:{
-display:"flex",
-minHeight:"100vh",
-background:"#f3f6fa",
-fontFamily:"Arial"
-},
-
-
-sidebar:{
-width:"260px",
-background:"#14558a",
-color:"white",
-padding:"25px"
-},
-
-
-menu:{
-display:"block",
-color:"white",
-textDecoration:"none",
-padding:"12px 0"
-},
-
-
-content:{
-flex:1,
-padding:"35px"
-},
-
-
-header:{
-background:"#14558a",
-color:"white",
-padding:"35px",
-borderRadius:"10px"
-},
-
-
-cards:{
-display:"grid",
-gridTemplateColumns:"repeat(4,1fr)",
-gap:"20px",
-marginTop:"30px"
-},
-
-
-card:{
-background:"white",
-padding:"25px",
-borderRadius:"10px"
-},
-
-
-panel:{
-background:"white",
-padding:"25px",
-marginTop:"30px",
-borderRadius:"10px"
-}
+);
 
 
 }

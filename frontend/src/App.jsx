@@ -1,65 +1,100 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route
+} from "react-router-dom";
 
-import Login from "./pages/Login";
+
+import Layout from "./pages/Layout";
 import Dashboard from "./pages/Dashboard";
 import DataOPD from "./pages/DataOPD";
-import Indikator from "./pages/Indikator";
 import Penilaian from "./pages/Penilaian";
-import BuktiDukung from "./pages/BuktiDukung";
-import Laporan from "./pages/Laporan";
+import Indikator from "./pages/Indikator";
 import Pengguna from "./pages/Pengguna";
-
-function ProtectedRoute({children}){
-
-const user = localStorage.getItem("ikpd_user");
-
-
-if(!user){
-
-return <Navigate to="/login"/>
-
-}
+import Laporan from "./pages/Laporan";
+import BuktiDukung from "./pages/BuktiDukung";
+import Login from "./pages/Login";
 
 
-return children;
-
-}
 
 function App(){
 
-return(
+
+return (
+
+<BrowserRouter>
+
 
 <Routes>
 
-<Route path="/login" element={<Login/>}/>
 
-<Route 
-path="/" 
-element={
-<ProtectedRoute>
-<Dashboard/>
-</ProtectedRoute>
-}
+{/* halaman login */}
+<Route
+path="/"
+element={<Login/>}
 />
 
-<Route path="/opd" element={<DataOPD/>}/>
 
-<Route path="/indikator" element={<Indikator/>}/>
 
-<Route path="/penilaian" element={<Penilaian/>}/>
+{/* semua halaman setelah login */}
+<Route element={<Layout/>}>
 
-<Route path="/bukti" element={<BuktiDukung/>}/>
 
-<Route path="/laporan" element={<Laporan/>}/>
+<Route
+path="/dashboard"
+element={<Dashboard/>}
+/>
 
-<Route path="/pengguna" element={<Pengguna/>}/>
+
+<Route
+path="/data-opd"
+element={<DataOPD/>}
+/>
+
+
+<Route
+path="/penilaian"
+element={<Penilaian/>}
+/>
+
+
+<Route
+path="/indikator"
+element={<Indikator/>}
+/>
+
+
+<Route path="/pengguna" element={<Pengguna />} />
+
+
+<Route
+path="/laporan"
+element={<Laporan/>}
+/>
+
+
+<Route
+path="/bukti"
+element={<BuktiDukung/>}
+/>
+
+
+
+</Route>
+
 
 
 </Routes>
 
-)
+
+</BrowserRouter>
+
+
+);
+
 
 }
+
 
 export default App;

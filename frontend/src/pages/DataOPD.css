@@ -1,0 +1,523 @@
+.dataopd-container{
+    padding:40px;
+}
+
+
+/* Judul */
+.dataopd-container h1{
+    font-size:32px;
+    margin-bottom:30px;
+}
+
+.page-container{
+
+padding:35px;
+
+background:#f4f7fb;
+
+min-height:100vh;
+
+}
+
+.page-container{
+    padding:35px;
+    background:#f4f7fb;
+    min-height:100vh;
+}
+
+
+/* JUDUL */
+.page-header{
+    margin-bottom:25px;
+}
+
+.page-header h1{
+    font-size:32px;
+    font-weight:700;
+    color:#111827;
+}
+
+.page-header p{
+    color:#6b7280;
+}
+
+
+
+/* CARD */
+.card{
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    margin-bottom:35px;
+    box-shadow:
+    0 8px 25px rgba(0,0,0,.08);
+}
+
+
+
+/* FORM */
+.form-group{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:18px;
+}
+
+
+.form-group label{
+    font-weight:600;
+}
+
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+
+    height:45px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:0 15px;
+    font-size:15px;
+
+}
+
+
+
+/* BUTTON */
+
+.button-area{
+
+display:flex;
+gap:15px;
+margin-top:25px;
+
+}
+
+
+.btn-primary{
+
+background:#075985;
+color:white;
+border:none;
+padding:13px 30px;
+border-radius:12px;
+font-weight:600;
+
+}
+
+
+.btn-reset{
+
+background:#edf2f7;
+border:none;
+padding:13px 30px;
+border-radius:12px;
+
+}
+
+
+
+/* TABLE */
+
+.table-card table{
+
+width:100%;
+border-collapse:collapse;
+
+}
+
+
+.table-card th{
+
+background:#075985;
+color:white;
+padding:18px;
+text-align:left;
+
+}
+
+
+
+.table-card td{
+
+padding:18px;
+border-bottom:1px solid #eee;
+
+}
+
+
+
+/* ACTION */
+
+.btn-edit{
+
+background:#2563eb;
+color:white;
+border:none;
+width:38px;
+height:38px;
+border-radius:10px;
+
+}
+
+
+.btn-delete{
+
+background:#ef4444;
+color:white;
+border:none;
+width:38px;
+height:38px;
+border-radius:10px;
+margin-left:10px;
+
+}
+
+.page-title h1{
+
+font-size:32px;
+
+font-weight:700;
+
+margin-bottom:8px;
+
+}
+
+
+
+.page-title p{
+
+color:#666;
+
+margin-bottom:25px;
+
+}
+
+
+
+
+.card{
+
+background:white;
+
+border-radius:20px;
+
+padding:30px;
+
+margin-bottom:35px;
+
+box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+
+
+.card h2{
+
+font-size:24px;
+
+margin-bottom:25px;
+
+}
+
+
+
+.form-grid{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:20px;
+
+}
+
+
+
+.form-grid input,
+.form-grid select{
+
+
+height:45px;
+
+border-radius:12px;
+
+border:1px solid #ddd;
+
+padding:0 15px;
+
+font-size:15px;
+
+}
+
+
+
+.button-area{
+
+margin-top:25px;
+
+display:flex;
+
+gap:15px;
+
+}
+
+
+
+.btn-primary{
+
+background:#075985;
+
+color:white;
+
+border:none;
+
+padding:12px 30px;
+
+border-radius:12px;
+
+cursor:pointer;
+
+}
+
+
+
+.btn-reset{
+
+background:#edf2f7;
+
+border:none;
+
+padding:12px 30px;
+
+border-radius:12px;
+
+}
+
+
+
+.table-card table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+
+
+.table-card th{
+
+background:#075985;
+
+color:white;
+
+padding:18px;
+
+}
+
+
+
+.table-card td{
+
+padding:18px;
+
+border-bottom:1px solid #eee;
+
+}
+
+
+
+.btn-edit{
+
+background:#2563eb;
+
+color:white;
+
+border:none;
+
+width:38px;
+
+height:38px;
+
+border-radius:10px;
+
+}
+
+
+
+.btn-delete{
+
+background:#ef4444;
+
+color:white;
+
+border:none;
+
+width:38px;
+
+height:38px;
+
+border-radius:10px;
+
+margin-left:10px;
+
+}
+
+/* CARD INPUT */
+.input-card{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:18px;
+
+    box-shadow:
+    0 8px 25px rgba(0,0,0,0.08);
+
+    margin-bottom:40px;   /* JARAK KE TABEL */
+
+}
+
+
+
+/* Form input */
+.form-opd{
+
+    display:flex;
+
+    gap:20px;
+
+    align-items:flex-end;
+
+}
+
+
+
+.form-opd div{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+
+
+.form-opd label{
+
+    font-weight:600;
+
+    color:#333;
+
+}
+
+
+
+.form-opd input{
+
+    width:220px;
+
+    padding:12px 15px;
+
+    border-radius:10px;
+
+    border:1px solid #ddd;
+
+    font-size:14px;
+
+}
+
+
+
+.btn-tambah{
+
+    background:#075985;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 25px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+}
+
+
+
+.btn-tambah:hover{
+
+    background:#0c4a6e;
+
+}
+
+
+
+/* CARD TABEL */
+
+.table-card{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:18px;
+
+    box-shadow:
+    0 8px 25px rgba(0,0,0,0.08);
+
+}
+
+
+
+/* tabel */
+
+.table-card table{
+
+    margin-top:25px;
+
+}
+
+
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+
+
+thead{
+
+    background:#075985;
+
+    color:white;
+
+}
+
+
+
+th{
+
+    padding:16px;
+
+}
+
+
+
+td{
+
+    padding:16px;
+
+    border-bottom:1px solid #eee;
+
+}
