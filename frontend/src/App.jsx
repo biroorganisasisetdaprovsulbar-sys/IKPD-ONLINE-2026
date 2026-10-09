@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -10,6 +10,21 @@ import BuktiDukung from "./pages/BuktiDukung";
 import Laporan from "./pages/Laporan";
 import Pengguna from "./pages/Pengguna";
 
+function ProtectedRoute({children}){
+
+const user = localStorage.getItem("ikpd_user");
+
+
+if(!user){
+
+return <Navigate to="/login"/>
+
+}
+
+
+return children;
+
+}
 
 function App(){
 
@@ -19,7 +34,14 @@ return(
 
 <Route path="/login" element={<Login/>}/>
 
-<Route path="/" element={<Dashboard/>}/>
+<Route 
+path="/" 
+element={
+<ProtectedRoute>
+<Dashboard/>
+</ProtectedRoute>
+}
+/>
 
 <Route path="/opd" element={<DataOPD/>}/>
 
