@@ -1,0 +1,5 @@
+Deploy:
+1. Upload repository ke Github
+2. Hubungkan dengan Vercel
+3. Tambahkan environment variable Supabase
+4. Deploy
