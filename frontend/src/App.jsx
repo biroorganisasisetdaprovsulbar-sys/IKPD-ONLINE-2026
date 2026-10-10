@@ -1,4 +1,7 @@
 import React from "react";
+import GantiPassword from "./pages/GantiPassword";
+import Verifikasi from "./pages/Verifikasi";
+import BuktiDukungan from "./pages/BuktiDukungan";
 import {
   BrowserRouter,
   Routes,
@@ -39,6 +42,10 @@ element={<Login/>}
 {/* semua halaman setelah login */}
 <Route element={<Layout/>}>
 
+<Route
+path="/ganti-password"
+element={<GantiPassword/>}
+/>
 
 <Route
 path="/dashboard"
@@ -78,11 +85,20 @@ path="/bukti"
 element={<BuktiDukung/>}
 />
 
-
+<Route
+path="/verifikasi"
+element={<Verifikasi/>}
+/>
 
 </Route>
 
+<Route
 
+path="/bukti"
+
+element={<BuktiDukungan/>}
+
+/>
 
 </Routes>
 

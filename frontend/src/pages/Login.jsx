@@ -35,17 +35,47 @@ export default function Login() {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
 
-    // login box
-    if (form.username === "admin" && form.password === "") {
-      localStorage.setItem("isLogin", "true");
-      localStorage.setItem("role", "");
-      navigate("/dashboard");
-    } else {
-      setError("Username atau password salah.");
-    }
-  };
+  e.preventDefault();
+
+
+  if (
+form.username === "admin" &&
+form.password ===
+(
+localStorage.getItem("password")
+||
+"admin123"
+)
+  ) {
+
+
+    localStorage.setItem(
+      "isLogin",
+      "true"
+    );
+
+
+    localStorage.setItem(
+      "role",
+      "Administrator"
+    );
+
+
+    navigate("/dashboard");
+
+
+  } else {
+
+
+    setError(
+      "Username atau password salah."
+    );
+
+
+  }
+
+};
 
   return (
     <>
