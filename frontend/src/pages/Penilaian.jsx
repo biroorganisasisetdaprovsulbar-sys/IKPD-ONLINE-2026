@@ -4,12 +4,7 @@ import React,{useState,useEffect} from "react";
 export default function Penilaian(){
 
 
-const [opd,setOpd]=useState([]);
-
-const [indikator,setIndikator]=useState([]);
-
-const [nilai,setNilai]=useState([]);
-
+const [data,setData]=useState([]);
 
 
 const [form,setForm]=useState({
@@ -17,7 +12,8 @@ const [form,setForm]=useState({
 id:null,
 opd:"",
 indikator:"",
-nilai:""
+nilai:"",
+catatan:""
 
 });
 
@@ -26,52 +22,18 @@ const [edit,setEdit]=useState(false);
 
 
 
-
-
 useEffect(()=>{
 
 
-const dataOPD=
-localStorage.getItem("opd");
-
-
-const dataIndikator=
-localStorage.getItem("indikator");
-
-
-const dataNilai=
+const simpan=
 localStorage.getItem("penilaian");
 
 
+if(simpan){
 
-if(dataOPD){
-
-setOpd(
-JSON.parse(dataOPD)
-);
+setData(JSON.parse(simpan));
 
 }
-
-
-
-if(dataIndikator){
-
-setIndikator(
-JSON.parse(dataIndikator)
-);
-
-}
-
-
-
-if(dataNilai){
-
-setNilai(
-JSON.parse(dataNilai)
-);
-
-}
-
 
 
 },[]);
@@ -79,25 +41,16 @@ JSON.parse(dataNilai)
 
 
 
-
-
-
-function simpan(){
+function simpanData(){
 
 
 if(
-
-form.opd==="" ||
-
-form.indikator==="" ||
-
-form.nilai===""
-
+!form.opd ||
+!form.indikator ||
+!form.nilai
 ){
 
-alert(
-"Lengkapi data penilaian"
-);
+alert("Lengkapi data penilaian");
 
 return;
 
@@ -112,10 +65,7 @@ let hasil;
 if(edit){
 
 
-hasil =
-nilai.map(
-
-item=>
+hasil=data.map(item=>
 
 item.id===form.id
 
@@ -130,22 +80,18 @@ item
 );
 
 
-}
-
-else{
+}else{
 
 
 hasil=[
 
-...nilai,
+...data,
 
 {
 
 ...form,
 
-id:Date.now(),
-
-nilai:Number(form.nilai)
+id:Date.now()
 
 }
 
@@ -156,32 +102,17 @@ nilai:Number(form.nilai)
 
 
 
-
-setNilai(hasil);
+setData(hasil);
 
 
 localStorage.setItem(
-
 "penilaian",
-
 JSON.stringify(hasil)
-
 );
 
 
 
-setForm({
-
-id:null,
-opd:"",
-indikator:"",
-nilai:""
-
-});
-
-
-setEdit(false);
-
+reset();
 
 
 }
@@ -190,14 +121,11 @@ setEdit(false);
 
 
 
-
 function editData(item){
-
 
 setForm(item);
 
 setEdit(true);
-
 
 }
 
@@ -207,36 +135,20 @@ setEdit(true);
 function hapus(id){
 
 
-if(
-
-confirm(
-"Hapus nilai penilaian?"
-)
-
-){
+if(confirm("Hapus penilaian?")){
 
 
-const hasil=
-
-nilai.filter(
-
-item=>
-
-item.id!==id
-
+const hasil=data.filter(
+item=>item.id!==id
 );
 
 
-
-setNilai(hasil);
+setData(hasil);
 
 
 localStorage.setItem(
-
 "penilaian",
-
 JSON.stringify(hasil)
-
 );
 
 
@@ -245,6 +157,57 @@ JSON.stringify(hasil)
 
 }
 
+
+
+
+function reset(){
+
+setForm({
+
+id:null,
+opd:"",
+indikator:"",
+nilai:"",
+catatan:""
+
+});
+
+
+setEdit(false);
+
+
+}
+
+
+
+
+function statusNilai(nilai){
+
+if(nilai>=90){
+
+return "Sangat Baik";
+
+}
+
+
+if(nilai>=75){
+
+return "Baik";
+
+}
+
+
+if(nilai>=60){
+
+return "Cukup";
+
+}
+
+
+return "Perlu Perbaikan";
+
+
+}
 
 
 
@@ -253,148 +216,69 @@ JSON.stringify(hasil)
 return(
 
 
-<div className="container">
+<div className="page-container">
+
+
+
+<div className="page-title">
+
+<h1>
+📊 Penilaian IKPD
+</h1>
+
+<p>
+Kelola hasil evaluasi kinerja OPD IKPD ONLINE 2026
+</p>
+
+</div>
+
+
+
 
 
 <div className="card">
 
 
-
-<h1>
-Penilaian IKPD
-</h1>
-
-
-<p>
-Input nilai kematangan perangkat daerah
-</p>
+<h2>
+➕ {edit?"Edit Penilaian":"Input Penilaian"}
+</h2>
 
 
 
+<div className="form-grid">
 
 
-<div className="form-box">
+<input
 
-
-
-<select
+placeholder="OPD"
 
 value={form.opd}
 
 onChange={
-
-e=>
-
-setForm({
-
+e=>setForm({
 ...form,
-
 opd:e.target.value
-
 })
-
 }
 
->
-
-
-<option value="">
-
-Pilih OPD
-
-</option>
+/>
 
 
 
-{
+<input
 
-opd.map(
-
-item=>(
-
-<option
-
-key={item.id}
-
->
-
-{item.nama}
-
-</option>
-
-)
-
-)
-
-}
-
-
-
-</select>
-
-
-
-
-
-
-<select
+placeholder="Indikator"
 
 value={form.indikator}
 
 onChange={
-
-e=>
-
-setForm({
-
+e=>setForm({
 ...form,
-
 indikator:e.target.value
-
 })
-
 }
 
->
-
-
-<option value="">
-
-Pilih Indikator
-
-</option>
-
-
-
-{
-
-indikator.map(
-
-item=>(
-
-<option
-
-key={item.id}
-
->
-
-{item.nama}
-
-</option>
-
-
-)
-
-)
-
-}
-
-
-
-</select>
-
-
-
+/>
 
 
 
@@ -403,57 +287,73 @@ key={item.id}
 
 type="number"
 
-min="0"
-
-max="100"
-
-placeholder="Nilai 0 - 100"
+placeholder="Nilai (0-100)"
 
 value={form.nilai}
 
 onChange={
-
-e=>
-
-setForm({
-
+e=>setForm({
 ...form,
-
 nilai:e.target.value
-
 })
-
 }
 
 />
 
 
 
+<input
+
+placeholder="Catatan"
+
+value={form.catatan}
+
+onChange={
+e=>setForm({
+...form,
+catatan:e.target.value
+})
+}
+
+/>
+
+
+</div>
+
+
+
+
+<div className="button-area">
 
 
 <button
 
-onClick={simpan}
+className="btn-primary"
+
+onClick={simpanData}
 
 >
 
-
-{
-
-edit
-
-?
-
-"Update Nilai"
-
-:
-
-"Simpan Nilai"
-
-}
-
+💾 {edit?"Update":"Simpan"}
 
 </button>
+
+
+
+<button
+
+className="btn-reset"
+
+onClick={reset}
+
+>
+
+↻ Reset
+
+</button>
+
+
+</div>
 
 
 
@@ -462,6 +362,14 @@ edit
 
 
 
+
+
+<div className="card table-card">
+
+
+<h2>
+📋 Daftar Penilaian
+</h2>
 
 
 
@@ -473,7 +381,6 @@ edit
 
 <tr>
 
-
 <th>No</th>
 
 <th>OPD</th>
@@ -482,14 +389,16 @@ edit
 
 <th>Nilai</th>
 
+<th>Status</th>
+
+<th>Catatan</th>
+
 <th>Aksi</th>
 
 
 </tr>
 
-
 </thead>
-
 
 
 
@@ -498,41 +407,47 @@ edit
 
 {
 
-nilai.map(
-
-(item,index)=>(
+data.map((item,index)=>(
 
 
 <tr key={item.id}>
 
 
 <td>
-
 {index+1}
-
 </td>
 
 
 <td>
-
 {item.opd}
-
 </td>
 
 
 <td>
-
 {item.indikator}
+</td>
 
+
+<td>
+{item.nilai}
 </td>
 
 
 <td>
 
-{item.nilai}
+<span>
+
+{statusNilai(item.nilai)}
+
+</span>
+
 
 </td>
 
+
+<td>
+{item.catatan}
+</td>
 
 
 <td>
@@ -540,15 +455,13 @@ nilai.map(
 
 <button
 
-onClick={
+className="btn-edit"
 
-()=>editData(item)
-
-}
+onClick={()=>editData(item)}
 
 >
 
-Edit
+✏️
 
 </button>
 
@@ -556,15 +469,13 @@ Edit
 
 <button
 
-onClick={
+className="btn-delete"
 
-()=>hapus(item.id)
-
-}
+onClick={()=>hapus(item.id)}
 
 >
 
-Hapus
+🗑
 
 </button>
 
@@ -576,13 +487,9 @@ Hapus
 </tr>
 
 
-)
-
-)
-
+))
 
 }
-
 
 
 </tbody>
@@ -592,9 +499,8 @@ Hapus
 </table>
 
 
-
-
 </div>
+
 
 
 </div>

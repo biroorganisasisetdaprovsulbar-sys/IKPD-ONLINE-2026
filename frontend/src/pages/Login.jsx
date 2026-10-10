@@ -37,10 +37,10 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // akun demo
-    if (form.username === "admin" && form.password === "admin123") {
+    // login box
+    if (form.username === "admin" && form.password === "") {
       localStorage.setItem("isLogin", "true");
-      localStorage.setItem("role", "Administrator");
+      localStorage.setItem("role", "");
       navigate("/dashboard");
     } else {
       setError("Username atau password salah.");
@@ -301,12 +301,13 @@ export default function Login() {
           margin: 0 0 10px;
         }
 
-        .login-help {
-          font-size: 14px;
-          color: #64748b;
-          margin-bottom: 24px;
-          line-height: 1.6;
-        }
+        .login-help{
+    font-size:15px;
+    color:#64748b;
+    line-height:1.8;
+    margin-bottom:28px;
+    font-weight:400;
+}
 
         .demo-box {
           background: linear-gradient(135deg, #eff6ff, #dbeafe);
@@ -546,17 +547,17 @@ export default function Login() {
 
             {/* KANAN - LOGIN */}
             <div className="panel login-panel">
-              <h3 className="login-title">🔐 Login Administrator</h3>
-              <div className="login-help">
-                Silakan login untuk mengakses dashboard pengelolaan data IKPD Online.
-              </div>
+              <h3 className="login-title">🔐 Login</h3>
+              <div className="login-welcome">
+    Selamat Datang di IKPD Online 2026
+</div>
 
-              <div className="demo-box">
-                <strong>Akun demo:</strong><br />
-                Username: <strong>admin</strong><br />
-                Password: <strong>admin123</strong>
-              </div>
 
+<div className="login-help">
+    Kelola data, evaluasi kinerja, dan pantau perkembangan perangkat daerah secara terintegrasi.
+</div>
+
+              
               {error && <div className="error-box">{error}</div>}
 
               <form onSubmit={handleSubmit}>

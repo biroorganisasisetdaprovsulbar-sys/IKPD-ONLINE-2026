@@ -3,7 +3,6 @@ import React, {useState, useEffect} from "react";
 
 export default function DataOPD(){
 
-
 const defaultData=[
 {
 id:1,
@@ -36,7 +35,7 @@ const [edit,setEdit]=useState(false);
 
 useEffect(()=>{
 
-let simpan=
+const simpan=
 localStorage.getItem("opd");
 
 
@@ -55,195 +54,36 @@ JSON.stringify(defaultData)
 
 }
 
-
 },[]);
 
 
 
-function simpan(){
+function handleSave(){
 
 
 if(
-form.nama==="" ||
-form.kode==="" ||
-form.kepala===""
+!form.nama ||
+!form.kode ||
+!form.kepala
 ){
 
 alert("Lengkapi data OPD");
-
 return;
 
 }
 
-return (
-
-<div className="page-container">
-
-
-<div className="page-title">
-<h1>📋 Data OPD</h1>
-<p>Kelola data organisasi perangkat daerah IKPD ONLINE 2026</p>
-</div>
-
-
-
-<div className="card">
-
-
-<h2>
-➕ Tambah Data OPD
-</h2>
-
-
-<div className="form-grid">
-
-
-<input
-placeholder="Nama OPD"
-/>
-
-
-<input
-placeholder="Kode OPD"
-/>
-
-
-<input
-placeholder="Kepala OPD"
-/>
-
-
-</div>
-
-
-<div className="button-area">
-
-<button className="btn-primary">
-💾 Simpan
-</button>
-
-
-<button className="btn-reset">
-↻ Reset
-</button>
-
-</div>
-
-
-</div>
-
-
-
-
-<div className="card table-card">
-
-
-<h2>
-📋 Daftar OPD
-</h2>
-
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>No</th>
-
-<th>Nama OPD</th>
-
-<th>Kode</th>
-
-<th>Kepala</th>
-
-<th>Aksi</th>
-
-
-</tr>
-
-</thead>
-
-
-<tbody>
-
-
-{dataOPD.map((item,index)=>(
-
-
-<tr key={item.id}>
-
-
-<td>
-{index+1}
-</td>
-
-
-<td>
-{item.nama}
-</td>
-
-
-<td>
-{item.kode}
-</td>
-
-
-<td>
-{item.kepala}
-</td>
-
-
-
-<td>
-
-
-<button className="btn-edit">
-✏️
-</button>
-
-
-<button className="btn-delete">
-🗑
-</button>
-
-
-</td>
-
-
-</tr>
-
-
-))}
-
-
-</tbody>
-
-
-</table>
-
-
-</div>
-
-
-
-</div>
-
-)
 
 let hasil;
 
 
 if(edit){
 
-
-hasil=data.map(
-x=>
-x.id===form.id
+hasil=data.map(item=>
+item.id===form.id
 ?
 form
 :
-x
+item
 );
 
 
@@ -262,7 +102,6 @@ id:Date.now()
 }
 
 
-
 setData(hasil);
 
 
@@ -272,17 +111,26 @@ JSON.stringify(hasil)
 );
 
 
+resetForm();
+
+}
+
+
+
+
+function resetForm(){
 
 setForm({
+
 id:null,
 nama:"",
 kode:"",
 kepala:""
+
 });
 
 
 setEdit(false);
-
 
 }
 
@@ -302,13 +150,11 @@ setEdit(true);
 
 function hapus(id){
 
+if(confirm("Hapus OPD?")){
 
-if(
-confirm("Hapus OPD?")
-){
 
-let hasil=data.filter(
-x=>x.id!==id
+const hasil=data.filter(
+item=>item.id!==id
 );
 
 
@@ -328,21 +174,36 @@ JSON.stringify(hasil)
 
 
 
-
 return (
 
-<div className="container">
+<div className="page-container">
+
+
+<div className="page-title">
+
+<h1>
+📋 Data OPD
+</h1>
+
+<p>
+Kelola data organisasi perangkat daerah IKPD ONLINE 2026
+</p>
+
+
+</div>
+
+
 
 <div className="card">
 
 
-<h1>
-Data OPD
-</h1>
+<h2>
+➕ {edit ? "Edit OPD":"Tambah Data OPD"}
+</h2>
 
 
 
-<div>
+<div className="form-grid">
 
 
 <input
@@ -352,8 +213,7 @@ placeholder="Nama OPD"
 value={form.nama}
 
 onChange={
-e=>
-setForm({
+e=>setForm({
 ...form,
 nama:e.target.value
 })
@@ -370,14 +230,14 @@ placeholder="Kode OPD"
 value={form.kode}
 
 onChange={
-e=>
-setForm({
+e=>setForm({
 ...form,
 kode:e.target.value
 })
 }
 
 />
+
 
 
 
@@ -388,8 +248,7 @@ placeholder="Kepala OPD"
 value={form.kepala}
 
 onChange={
-e=>
-setForm({
+e=>setForm({
 ...form,
 kepala:e.target.value
 })
@@ -398,21 +257,49 @@ kepala:e.target.value
 />
 
 
-<button onClick={simpan}>
+</div>
 
-{
-edit
-?
-"Update"
-:
-"Tambah"
-}
+
+
+<div className="button-area">
+
+
+<button
+className="btn-primary"
+onClick={handleSave}
+>
+
+💾 {edit?"Update":"Simpan"}
+
+</button>
+
+
+
+<button
+className="btn-reset"
+onClick={resetForm}
+>
+
+↻ Reset
 
 </button>
 
 
 </div>
 
+
+
+</div>
+
+
+
+
+<div className="card table-card">
+
+
+<h2>
+📋 Daftar OPD
+</h2>
 
 
 
@@ -424,17 +311,12 @@ edit
 <tr>
 
 <th>No</th>
-
 <th>Nama OPD</th>
-
 <th>Kode</th>
-
 <th>Kepala</th>
-
 <th>Aksi</th>
 
 </tr>
-
 
 </thead>
 
@@ -444,49 +326,49 @@ edit
 
 
 {
-
-data.map(
-(item,index)=>(
-
+data.map((item,index)=>(
 
 <tr key={item.id}>
 
 
-<td>
-{index+1}
-</td>
+<td>{index+1}</td>
 
+<td>{item.nama}</td>
 
-<td>
-{item.nama}
-</td>
+<td>{item.kode}</td>
 
-
-<td>
-{item.kode}
-</td>
-
-
-<td>
-{item.kepala}
-</td>
+<td>{item.kepala}</td>
 
 
 <td>
 
 
 <button
+
+className="btn-edit"
+
 onClick={()=>editData(item)}
+
 >
-Edit
+
+✏️
+
 </button>
+
 
 
 <button
+
+className="btn-delete"
+
 onClick={()=>hapus(item.id)}
+
 >
-Hapus
+
+🗑
+
 </button>
+
 
 
 </td>
@@ -495,16 +377,13 @@ Hapus
 </tr>
 
 
-)
-
-)
-
+))
 
 }
 
 
-
 </tbody>
+
 
 
 </table>
@@ -514,7 +393,9 @@ Hapus
 </div>
 
 
+
 </div>
+
 
 );
 

@@ -1,53 +1,59 @@
-import {useState} from "react";
+import React,{useState,useEffect} from "react";
 
 
 export default function BuktiDukung(){
 
 
-const opdList =
-JSON.parse(localStorage.getItem("opd")) || [];
-
-
-const indikatorList =
-JSON.parse(localStorage.getItem("indikator")) || [];
-
-
-
-const [data,setData]=useState(()=>{
-
-return JSON.parse(
-localStorage.getItem("bukti")
-) || [];
-
-});
-
+const [data,setData]=useState([]);
 
 
 const [form,setForm]=useState({
 
+id:null,
 opd:"",
 indikator:"",
-namaFile:"",
+dokumen:"",
+file:"",
 keterangan:"",
-status:"Menunggu"
+status:"Menunggu Verifikasi"
 
 });
 
 
-const [edit,setEdit]=useState(null);
+const [edit,setEdit]=useState(false);
 
 
 
-function simpan(){
+useEffect(()=>{
+
+
+const simpan =
+localStorage.getItem("bukti");
+
+
+if(simpan){
+
+setData(JSON.parse(simpan));
+
+}
+
+
+},[]);
+
+
+
+
+
+function simpanData(){
 
 
 if(
 !form.opd ||
 !form.indikator ||
-!form.namaFile
+!form.dokumen
 ){
 
-alert("Lengkapi data terlebih dahulu");
+alert("Lengkapi data bukti dukung");
 
 return;
 
@@ -58,28 +64,23 @@ return;
 let hasil;
 
 
+
 if(edit){
 
 
 hasil=data.map(item=>
 
-item.id===edit
+item.id===form.id
 
 ?
 
-{
-...item,
-...form
-}
+form
 
 :
 
 item
 
 );
-
-
-setEdit(null);
 
 
 }else{
@@ -91,9 +92,9 @@ hasil=[
 
 {
 
-id:Date.now(),
+...form,
 
-...form
+id:Date.now()
 
 }
 
@@ -114,15 +115,7 @@ JSON.stringify(hasil)
 
 
 
-setForm({
-
-opd:"",
-indikator:"",
-namaFile:"",
-keterangan:"",
-status:"Menunggu"
-
-});
+reset();
 
 
 }
@@ -132,27 +125,11 @@ status:"Menunggu"
 
 function editData(item){
 
+setForm(item);
 
-setEdit(item.id);
-
-
-setForm({
-
-opd:item.opd,
-
-indikator:item.indikator,
-
-namaFile:item.namaFile,
-
-keterangan:item.keterangan,
-
-status:item.status
-
-});
-
+setEdit(true);
 
 }
-
 
 
 
@@ -160,9 +137,13 @@ status:item.status
 function hapus(id){
 
 
+if(confirm("Hapus dokumen?")){
+
+
 const hasil=data.filter(
-x=>x.id!==id
+item=>item.id!==id
 );
+
 
 
 setData(hasil);
@@ -176,211 +157,54 @@ JSON.stringify(hasil)
 
 }
 
+}
 
 
 
-return (
-
-<div>
 
 
-<h1>Bukti Dukung IKPD</h1>
+function reset(){
 
-
-
-<div className="card">
-
-
-<h2>Tambah Bukti</h2>
-
-
-<select
-
-value={form.opd}
-
-onChange={e=>
 
 setForm({
 
-...form,
+id:null,
+opd:"",
+indikator:"",
+dokumen:"",
+file:"",
+keterangan:"",
+status:"Menunggu Verifikasi"
 
-opd:e.target.value
-
-})
-
-}
-
->
-
-
-<option value="">
-Pilih OPD
-</option>
+});
 
 
-{
+setEdit(false);
 
-opdList.map(o=>(
-
-<option key={o.id}>
-
-{o.nama}
-
-</option>
-
-))
 
 }
 
 
-</select>
 
 
 
+return(
 
-<select
+<div className="page-container">
 
-value={form.indikator}
 
-onChange={e=>
 
-setForm({
+<div className="page-title">
 
-...form,
 
-indikator:e.target.value
+<h1>
+📁 Bukti Dukung IKPD
+</h1>
 
-})
 
-}
-
->
-
-
-<option value="">
-Pilih Indikator
-</option>
-
-
-
-{
-
-indikatorList.map(i=>(
-
-<option
-
-key={i.id}
-
-value={i.id}
-
->
-
-{i.nama}
-
-</option>
-
-))
-
-}
-
-
-</select>
-
-
-
-
-<input
-
-placeholder="Nama Dokumen"
-
-value={form.namaFile}
-
-onChange={e=>
-
-setForm({
-
-...form,
-
-namaFile:e.target.value
-
-})
-
-}
-
-/>
-
-
-
-
-<textarea
-
-placeholder="Keterangan"
-
-value={form.keterangan}
-
-onChange={e=>
-
-setForm({
-
-...form,
-
-keterangan:e.target.value
-
-})
-
-}
-
-/>
-
-
-
-
-<select
-
-value={form.status}
-
-onChange={e=>
-
-setForm({
-
-...form,
-
-status:e.target.value
-
-})
-
-}
-
->
-
-<option>
-Menunggu
-</option>
-
-<option>
-Disetujui
-</option>
-
-<option>
-Ditolak
-</option>
-
-
-</select>
-
-
-
-<button onClick={simpan}>
-
-{
-edit ?
-"Update"
-:
-"Simpan"
-}
-
-</button>
-
+<p>
+Kelola dokumen pendukung evaluasi OPD IKPD ONLINE 2026
+</p>
 
 
 </div>
@@ -393,12 +217,158 @@ edit ?
 
 
 <h2>
-Daftar Bukti
+➕ {edit?"Edit Bukti Dukung":"Tambah Bukti Dukung"}
 </h2>
 
 
 
-<table width="100%" border="1">
+
+<div className="form-grid">
+
+
+
+<input
+
+placeholder="OPD"
+
+value={form.opd}
+
+onChange={
+e=>setForm({
+...form,
+opd:e.target.value
+})
+}
+
+/>
+
+
+
+<input
+
+placeholder="Indikator"
+
+value={form.indikator}
+
+onChange={
+e=>setForm({
+...form,
+indikator:e.target.value
+})
+}
+
+/>
+
+
+
+
+<input
+
+placeholder="Nama Dokumen"
+
+value={form.dokumen}
+
+onChange={
+e=>setForm({
+...form,
+dokumen:e.target.value
+})
+}
+
+/>
+
+
+
+
+<input
+
+type="file"
+
+onChange={
+e=>setForm({
+...form,
+file:e.target.files[0]?.name
+})
+}
+
+/>
+
+
+
+<input
+
+placeholder="Keterangan"
+
+value={form.keterangan}
+
+onChange={
+e=>setForm({
+...form,
+keterangan:e.target.value
+})
+}
+
+/>
+
+
+
+</div>
+
+
+
+
+<div className="button-area">
+
+
+<button
+
+className="btn-primary"
+
+onClick={simpanData}
+
+>
+
+💾 {edit?"Update":"Simpan"}
+
+</button>
+
+
+
+<button
+
+className="btn-reset"
+
+onClick={reset}
+
+>
+
+↻ Reset
+
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div className="card table-card">
+
+
+<h2>
+📋 Daftar Bukti Dukung
+</h2>
+
+
+
+<table>
 
 
 <thead>
@@ -406,16 +376,22 @@ Daftar Bukti
 <tr>
 
 <th>No</th>
+
 <th>OPD</th>
+
 <th>Indikator</th>
+
 <th>Dokumen</th>
+
 <th>Status</th>
+
 <th>Aksi</th>
 
 </tr>
 
 
 </thead>
+
 
 
 
@@ -441,27 +417,21 @@ data.map((item,index)=>(
 
 
 <td>
-
-{
-
-indikatorList.find(
-
-i=>i.id===Number(item.indikator)
-
-)?.nama
-
-}
-
+{item.indikator}
 </td>
 
 
 <td>
-{item.namaFile}
+{item.dokumen}
 </td>
 
 
 <td>
+
+<span>
 {item.status}
+</span>
+
 </td>
 
 
@@ -471,11 +441,13 @@ i=>i.id===Number(item.indikator)
 
 <button
 
+className="btn-edit"
+
 onClick={()=>editData(item)}
 
 >
 
-Edit
+✏️
 
 </button>
 
@@ -483,11 +455,13 @@ Edit
 
 <button
 
+className="btn-delete"
+
 onClick={()=>hapus(item.id)}
 
 >
 
-Hapus
+🗑
 
 </button>
 
@@ -501,23 +475,24 @@ Hapus
 
 ))
 
-
 }
 
 
 </tbody>
 
 
+
 </table>
 
 
-</div>
-
-
 
 </div>
 
-)
+
+
+</div>
+
+);
 
 
 }

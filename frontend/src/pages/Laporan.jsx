@@ -1,223 +1,328 @@
-import React from "react";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+import React,{useState,useEffect} from "react";
 
 
-function Laporan(){
-
-const data = [
-{
-no:1,
-opd:"Dinas Pendidikan",
-status:"Selesai",
-nilai:"86"
-},
-{
-no:2,
-opd:"Dinas Kesehatan",
-status:"Proses",
-nilai:"72"
-},
-{
-no:3,
-opd:"Bappeda",
-status:"Belum",
-nilai:"-"
-}
-];
+export default function Laporan(){
 
 
-const exportPDF = ()=>{
-
-const doc = new jsPDF({
-orientation:"landscape",
-unit:"mm",
-format:"a4"
-});
+const [data,setData]=useState([]);
 
 
-const tanggal = new Date().toLocaleDateString(
-"id-ID"
-);
+const [tahun,setTahun]=useState("2026");
+
+const [opd,setOpd]=useState("Semua OPD");
 
 
-// HEADER
-
-doc.setFontSize(18);
-doc.text(
-"IKPD ONLINE 2026",
-14,
-15
-);
 
 
-doc.setFontSize(12);
-
-doc.text(
-"Laporan Hasil Penilaian Indeks Kematangan Perangkat Daerah",
-14,
-23
-);
+useEffect(()=>{
 
 
-doc.setFontSize(10);
-
-doc.text(
-"Dicetak tanggal : "+tanggal,
-14,
-30
-);
+const nilai =
+JSON.parse(
+localStorage.getItem("penilaian")
+)
+|| [];
 
 
-// TABLE
-
-autoTable(doc,{
-
-startY:38,
-
-head:[
-[
-"No",
-"OPD",
-"Status",
-"Nilai"
-]
-],
+setData(nilai);
 
 
-body:data.map(item=>[
-item.no,
-item.opd,
-item.status,
-item.nilai
-]),
+},[]);
 
 
-theme:"grid",
 
 
-headStyles:{
-fillColor:[31,96,145],
-textColor:255,
-halign:"center"
-},
+
+function statusNilai(nilai){
 
 
-styles:{
-fontSize:11
-},
+if(nilai>=90){
 
-
-columnStyles:{
-0:{
-halign:"center",
-cellWidth:20
-},
-
-3:{
-halign:"center",
-cellWidth:30
-}
+return "Sangat Baik";
 
 }
 
-});
+
+if(nilai>=75){
+
+return "Baik";
+
+}
 
 
+if(nilai>=60){
 
-// FOOTER
+return "Cukup";
 
-const halaman =
-doc.internal.getNumberOfPages();
-
-
-for(let i=1;i<=halaman;i++){
-
-doc.setPage(i);
+}
 
 
-doc.setFontSize(9);
-
-
-doc.text(
-"IKPD ONLINE 2026 | Halaman "+i,
-14,
-200
-);
+return "Perlu Perbaikan";
 
 
 }
 
 
 
-doc.save(
-"Laporan_IKPD_ONLINE_2026.pdf"
-);
-
-
-}
 
 
 
 return(
 
-<div className="container">
+<div className="page-container">
 
-<div className="card">
 
+
+<div className="page-title">
 
 <h1>
-Laporan IKPD ONLINE 2026
+📑 Laporan IKPD
 </h1>
 
 
 <p>
-Export laporan hasil penilaian Indeks Kematangan Perangkat Daerah.
+Rekapitulasi hasil evaluasi kinerja OPD IKPD ONLINE 2026
 </p>
 
 
-<button
-onClick={exportPDF}
-className="btn-primary"
+</div>
+
+
+
+
+
+<div className="card">
+
+
+<h2>
+🔎 Filter Laporan
+</h2>
+
+
+
+<div className="form-grid">
+
+
+
+<select
+
+value={tahun}
+
+onChange={
+e=>setTahun(e.target.value)
+}
+
 >
-📄 Export PDF
+
+<option>
+2026
+</option>
+
+<option>
+2027
+</option>
+
+
+</select>
+
+
+
+
+
+<select
+
+value={opd}
+
+onChange={
+e=>setOpd(e.target.value)
+}
+
+>
+
+
+<option>
+Semua OPD
+</option>
+
+
+{
+
+[...new Set(
+data.map(
+item=>item.opd
+)
+)]
+
+.map(
+(item,index)=>(
+
+<option key={index}>
+{item}
+</option>
+
+)
+
+)
+
+
+}
+
+
+
+</select>
+
+
+
+
+</div>
+
+
+
+<div className="button-area">
+
+
+<button className="btn-primary">
+
+🔍 Tampilkan
+
 </button>
+
+
+<button className="btn-reset">
+
+📄 Export PDF
+
+</button>
+
+
+<button className="btn-reset">
+
+📊 Export Excel
+
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div className="card table-card">
+
+
+<h2>
+📊 Rekap Penilaian OPD
+</h2>
+
 
 
 
 <table>
 
+
 <thead>
 
+
 <tr>
+
 <th>No</th>
+
 <th>OPD</th>
-<th>Status</th>
+
+<th>Indikator</th>
+
 <th>Nilai</th>
+
+<th>Status</th>
+
+
 </tr>
+
 
 </thead>
 
 
+
 <tbody>
 
+
+
 {
-data.map((item)=>(
 
-<tr key={item.no}>
+data
 
-<td>{item.no}</td>
+.filter(
 
-<td>{item.opd}</td>
+item=>
 
-<td>{item.status}</td>
+opd==="Semua OPD"
 
-<td>{item.nilai}</td>
+?
+
+true
+
+:
+
+item.opd===opd
+
+)
+
+.map(
+
+(item,index)=>(
+
+
+<tr key={index}>
+
+
+<td>
+{index+1}
+</td>
+
+
+<td>
+{item.opd}
+</td>
+
+
+<td>
+{item.indikator}
+</td>
+
+
+<td>
+{item.nilai}
+</td>
+
+
+<td>
+
+{statusNilai(
+item.nilai
+)}
+
+</td>
+
 
 </tr>
 
-))
+
+)
+
+
+)
+
+
 }
+
+
 
 </tbody>
 
@@ -225,13 +330,15 @@ data.map((item)=>(
 </table>
 
 
-</div>
 
 </div>
 
-)
+
+
+</div>
+
+
+);
+
 
 }
-
-
-export default Laporan;

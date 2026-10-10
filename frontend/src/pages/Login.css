@@ -28,6 +28,21 @@ linear-gradient(
 
 }
 
+.login-welcome{
+
+    font-family: "Segoe Script", "Brush Script MT", cursive;
+
+    font-size:32px;
+
+    font-style:italic;
+
+    font-weight:600;
+
+    color:#0f5ea8;
+
+    margin-bottom:15px;
+
+}
 
 /* ANIMASI BACKGROUND */
 

@@ -1,47 +1,35 @@
-import React, {useState, useEffect} from "react";
+import React,{useState,useEffect} from "react";
 
 
 export default function Indikator(){
 
 
-const dataAwal=[
+const defaultData=[
 
 {
 id:1,
-kode:"IKPD-01",
-nama:"Perencanaan Pembangunan Daerah",
-kategori:"Tata Kelola",
-bobot:20
+nama:"Indeks Kinerja Pelayanan Publik",
+kategori:"Pelayanan",
+bobot:"30"
 },
 
 {
 id:2,
-kode:"IKPD-02",
-nama:"Pelayanan Publik Digital",
-kategori:"SPBE",
-bobot:30
-},
-
-{
-id:3,
-kode:"IKPD-03",
-nama:"Manajemen Kinerja OPD",
-kategori:"Kinerja",
-bobot:50
+nama:"Akuntabilitas Kinerja",
+kategori:"Manajemen",
+bobot:"40"
 }
 
 ];
 
 
 
-const [indikator,setIndikator]=useState([]);
-
+const [data,setData]=useState([]);
 
 
 const [form,setForm]=useState({
 
 id:null,
-kode:"",
 nama:"",
 kategori:"",
 bobot:""
@@ -53,37 +41,25 @@ const [edit,setEdit]=useState(false);
 
 
 
-
-// LOAD DATA
-
 useEffect(()=>{
 
 
-const data =
+const simpan=
 localStorage.getItem("indikator");
 
 
-if(data){
+if(simpan){
 
-setIndikator(
-JSON.parse(data)
-);
-
+setData(JSON.parse(simpan));
 
 }else{
 
-
-setIndikator(dataAwal);
-
+setData(defaultData);
 
 localStorage.setItem(
-
 "indikator",
-
-JSON.stringify(dataAwal)
-
+JSON.stringify(defaultData)
 );
-
 
 }
 
@@ -93,28 +69,16 @@ JSON.stringify(dataAwal)
 
 
 
-
-
-function simpan(){
+function simpanData(){
 
 
 if(
-
-form.kode==="" ||
-
-form.nama==="" ||
-
-form.kategori==="" ||
-
-form.bobot===""
-
+!form.nama ||
+!form.kategori ||
+!form.bobot
 ){
 
-
-alert(
-"Semua data indikator harus diisi"
-);
-
+alert("Lengkapi data indikator");
 
 return;
 
@@ -129,9 +93,7 @@ let hasil;
 if(edit){
 
 
-hasil = indikator.map(
-
-item=>
+hasil=data.map(item=>
 
 item.id===form.id
 
@@ -146,22 +108,18 @@ item
 );
 
 
-}
-
-else{
+}else{
 
 
 hasil=[
 
-...indikator,
+...data,
 
 {
 
 ...form,
 
-id:Date.now(),
-
-bobot:Number(form.bobot)
+id:Date.now()
 
 }
 
@@ -172,34 +130,18 @@ bobot:Number(form.bobot)
 
 
 
-setIndikator(hasil);
 
+setData(hasil);
 
 
 localStorage.setItem(
-
 "indikator",
-
 JSON.stringify(hasil)
-
 );
 
 
 
-setForm({
-
-id:null,
-kode:"",
-nama:"",
-kategori:"",
-bobot:""
-
-});
-
-
-setEdit(false);
-
-
+reset();
 
 }
 
@@ -222,36 +164,21 @@ setEdit(true);
 function hapus(id){
 
 
-if(
-confirm(
-"Hapus indikator?"
-)
-
-){
+if(confirm("Hapus indikator?")){
 
 
-const hasil=
-
-indikator.filter(
-
-item=>
-
-item.id!==id
-
+const hasil=data.filter(
+item=>item.id!==id
 );
 
 
 
-setIndikator(hasil);
-
+setData(hasil);
 
 
 localStorage.setItem(
-
 "indikator",
-
 JSON.stringify(hasil)
-
 );
 
 
@@ -261,60 +188,61 @@ JSON.stringify(hasil)
 }
 
 
+
+
+function reset(){
+
+
+setForm({
+
+id:null,
+nama:"",
+kategori:"",
+bobot:""
+
+});
+
+
+setEdit(false);
+
+
+}
 
 
 
 
 return(
 
+<div className="page-container">
 
-<div className="container">
+
+
+<div className="page-title">
+
+<h1>
+📄 Indikator IKPD
+</h1>
+
+<p>
+Kelola indikator kinerja perangkat daerah IKPD ONLINE 2026
+</p>
+
+</div>
+
+
+
 
 
 <div className="card">
 
 
-
-<h1>
-Indikator IKPD
-</h1>
-
-
-<p>
-Kelola indikator penilaian kematangan perangkat daerah
-</p>
+<h2>
+➕ {edit?"Edit Indikator":"Tambah Indikator"}
+</h2>
 
 
 
-
-
-<div className="form-box">
-
-
-
-<input
-
-placeholder="Kode Indikator"
-
-value={form.kode}
-
-onChange={
-
-e=>
-
-setForm({
-
-...form,
-
-kode:e.target.value
-
-})
-
-}
-
-/>
-
-
+<div className="form-grid">
 
 
 
@@ -325,22 +253,13 @@ placeholder="Nama Indikator"
 value={form.nama}
 
 onChange={
-
-e=>
-
-setForm({
-
+e=>setForm({
 ...form,
-
 nama:e.target.value
-
 })
-
 }
 
 />
-
-
 
 
 
@@ -351,76 +270,32 @@ placeholder="Kategori"
 value={form.kategori}
 
 onChange={
-
-e=>
-
-setForm({
-
+e=>setForm({
 ...form,
-
 kategori:e.target.value
-
 })
-
 }
 
 />
-
-
 
 
 
 <input
 
-type="number"
+placeholder="Bobot (%)"
 
-placeholder="Bobot"
+type="number"
 
 value={form.bobot}
 
 onChange={
-
-e=>
-
-setForm({
-
+e=>setForm({
 ...form,
-
 bobot:e.target.value
-
 })
-
 }
 
 />
-
-
-
-
-
-<button
-
-onClick={simpan}
-
->
-
-
-{
-
-edit
-
-?
-
-"Update Indikator"
-
-:
-
-"Tambah Indikator"
-
-}
-
-
-</button>
 
 
 
@@ -428,6 +303,54 @@ edit
 
 
 
+
+<div className="button-area">
+
+
+<button
+
+className="btn-primary"
+
+onClick={simpanData}
+
+>
+
+💾 {edit?"Update":"Simpan"}
+
+</button>
+
+
+
+<button
+
+className="btn-reset"
+
+onClick={reset}
+
+>
+
+↻ Reset
+
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+<div className="card table-card">
+
+
+<h2>
+📋 Daftar Indikator
+</h2>
 
 
 
@@ -439,10 +362,7 @@ edit
 
 <tr>
 
-
 <th>No</th>
-
-<th>Kode</th>
 
 <th>Indikator</th>
 
@@ -452,12 +372,10 @@ edit
 
 <th>Aksi</th>
 
-
 </tr>
 
 
 </thead>
-
 
 
 
@@ -466,21 +384,13 @@ edit
 
 {
 
-indikator.map(
-
-(item,index)=>(
-
+data.map((item,index)=>(
 
 <tr key={item.id}>
 
 
 <td>
 {index+1}
-</td>
-
-
-<td>
-{item.kode}
 </td>
 
 
@@ -495,7 +405,7 @@ indikator.map(
 
 
 <td>
-{item.bobot}%
+{item.bobot} %
 </td>
 
 
@@ -505,15 +415,13 @@ indikator.map(
 
 <button
 
-onClick={
+className="btn-edit"
 
-()=>editData(item)
-
-}
+onClick={()=>editData(item)}
 
 >
 
-Edit
+✏️
 
 </button>
 
@@ -521,18 +429,15 @@ Edit
 
 <button
 
-onClick={
+className="btn-delete"
 
-()=>hapus(item.id)
-
-}
+onClick={()=>hapus(item.id)}
 
 >
 
-Hapus
+🗑
 
 </button>
-
 
 
 </td>
@@ -541,10 +446,7 @@ Hapus
 </tr>
 
 
-)
-
-)
-
+))
 
 }
 
@@ -557,13 +459,11 @@ Hapus
 </table>
 
 
-
-
 </div>
 
 
-</div>
 
+</div>
 
 );
 
