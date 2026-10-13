@@ -1,58 +1,152 @@
-const express=require("express");
-
-const cors=require("cors");
+require("dotenv").config();
 
 
-const app=express();
-
-const dashboardRoute =
-require("./routes/dashboard");
+const express =
+require("express");
 
 
-app.use(
-"/api/dashboard",
-dashboardRoute
-);
+const cors =
+require("cors");
 
-app.use(cors());
 
-app.use(express.json());
 
-const path = require("path");
+const app =
+express();
+
+
+
 
 
 app.use(
-"/uploads",
-express.static(
-path.join(__dirname,"uploads")
-)
-);
-
-app.use(
-"/uploads",
-express.static("uploads")
+cors()
 );
 
 
 
-const buktiRouter =
-require("./routes/bukti");
+app.use(
+express.json()
+);
+
 
 
 app.use(
+express.urlencoded({
+
+extended:true
+
+})
+);
+
+
+
+
+
+// ROUTES
+
+
+app.use(
+
+"/api",
+
+require("./routes/auth")
+
+);
+
+
+
+app.use(
+
+"/api/users",
+
+require("./routes/users")
+
+);
+
+
+
+app.use(
+
+"/api/opd",
+
+require("./routes/opd")
+
+);
+
+
+
+app.use(
+
+"/api/indikator",
+
+require("./routes/indikator")
+
+);
+
+
+
+app.use(
+
+"/api/penilaian",
+
+require("./routes/penilaian")
+
+);
+
+
+
+app.use(
+
 "/api/bukti",
-buktiRouter
+
+require("./routes/bukti")
+
 );
+
+
+
+
+
+
+app.use("/api/periode", require("./routes/periode"));
+
+app.get("/",(req,res)=>{
+
+
+res.json({
+
+message:
+
+"IKPD ONLINE 2026 API Running"
+
+});
+
+
+});
+
+
+
+
+
+
+
+const PORT =
+process.env.PORT || 5000;
 
 
 
 app.listen(
-5000,
+
+PORT,
+
 ()=>{
 
+
 console.log(
-"Server berjalan port 5000"
+
+`Server berjalan pada port ${PORT}`
+
 );
+
 
 }
 

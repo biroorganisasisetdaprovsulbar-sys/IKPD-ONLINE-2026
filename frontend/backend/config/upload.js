@@ -1,0 +1,65 @@
+const multer = require("multer");
+
+
+const storage = multer.diskStorage({
+
+
+destination:(req,file,cb)=>{
+
+
+cb(
+null,
+"uploads/bukti"
+);
+
+
+},
+
+
+
+filename:(req,file,cb)=>{
+
+
+const unique =
+
+Date.now()+"-"+file.originalname;
+
+
+cb(
+null,
+unique
+);
+
+
+}
+
+
+
+});
+
+
+
+
+
+const upload = multer({
+
+storage,
+
+
+limits:{
+
+
+fileSize:
+
+5 * 1024 * 1024
+
+
+}
+
+
+
+});
+
+
+
+module.exports = upload;

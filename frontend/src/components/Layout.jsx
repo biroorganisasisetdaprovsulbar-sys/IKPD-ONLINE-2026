@@ -1,34 +1,52 @@
+import React from "react";
+
+
 import Sidebar from "./Sidebar";
-import Header from "./Header";
-import {Outlet} from "react-router-dom";
+
+import Navbar from "./Navbar";
 
 
-export default function Layout(){
+import "./Layout.css";
+
+
+
+export default function Layout({children}){
+
 
 return(
 
-<div className="layout">
 
-<Sidebar/>
-
-
-<div className="main">
-
-<Header/>
+<div className="app-layout">
 
 
-<div className="page">
 
-<Outlet/>
+<Sidebar />
+
+
+
+<div className="main-area">
+
+
+<Navbar />
+
+
+
+<div className="content-area">
+
+{children}
 
 </div>
 
 
-</div>
-
 
 </div>
 
-)
+
+
+</div>
+
+
+);
+
 
 }

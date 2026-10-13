@@ -1,41 +1,58 @@
-import React,{useState,useEffect} from "react";
+import React,{
+    useEffect,
+    useState
+} from "react";
+
+
+import {
+    Upload,
+    FileText,
+    Trash2,
+    Eye
+} from "lucide-react";
+
+
+import "./BuktiDukung.css";
+
+
+
+const API_BASE =
+"http://localhost:5000";
+
+
 
 
 export default function BuktiDukung(){
 
 
+
 const [data,setData]=useState([]);
+
+
+const [file,setFile]=useState(null);
 
 
 const [form,setForm]=useState({
 
-id:null,
-opd:"",
-indikator:"",
-dokumen:"",
-file:"",
-keterangan:"",
-status:"Menunggu Verifikasi"
+    indikator_id:"",
+    keterangan:""
 
 });
 
 
-const [edit,setEdit]=useState(false);
+
+const [loading,setLoading]=useState(false);
+
+
+
+
 
 
 
 useEffect(()=>{
 
 
-const simpan =
-localStorage.getItem("bukti");
-
-
-if(simpan){
-
-setData(JSON.parse(simpan));
-
-}
+loadData();
 
 
 },[]);
@@ -44,145 +61,330 @@ setData(JSON.parse(simpan));
 
 
 
-function simpanData(){
 
 
-if(
-!form.opd ||
-!form.indikator ||
-!form.dokumen
-){
+function header(){
 
-alert("Lengkapi data bukti dukung");
 
-return;
+return{
+
+
+Authorization:
+
+`Bearer ${localStorage.getItem("token")}`
+
+
+};
+
 
 }
 
 
 
-let hasil;
 
 
 
-if(edit){
+
+async function loadData(){
 
 
-hasil=data.map(item=>
-
-item.id===form.id
-
-?
-
-form
-
-:
-
-item
-
-);
+try{
 
 
-}else{
+const response =
 
+await fetch(
 
-hasil=[
-
-...data,
+`${API_BASE}/api/bukti`,
 
 {
 
-...form,
-
-id:Date.now()
+headers:header()
 
 }
 
-];
-
-
-}
-
-
-
-setData(hasil);
-
-
-localStorage.setItem(
-"bukti",
-JSON.stringify(hasil)
 );
 
 
 
-reset();
+const result =
 
-
-}
-
-
-
-
-function editData(item){
-
-setForm(item);
-
-setEdit(true);
-
-}
+await response.json();
 
 
 
 
-function hapus(id){
+
+if(result.success){
 
 
-if(confirm("Hapus dokumen?")){
-
-
-const hasil=data.filter(
-item=>item.id!==id
+setData(
+result.data
 );
 
 
+}
+else if(Array.isArray(result)){
 
-setData(hasil);
+
+setData(result);
 
 
-localStorage.setItem(
-"bukti",
-JSON.stringify(hasil)
+}
+
+
+}
+
+catch(error){
+
+
+console.log(
+error
 );
 
 
 }
 
+
+
 }
 
 
 
 
 
-function reset(){
+
+
+
+
+function changeForm(e){
 
 
 setForm({
 
-id:null,
-opd:"",
-indikator:"",
-dokumen:"",
-file:"",
-keterangan:"",
-status:"Menunggu Verifikasi"
+...form,
+
+[e.target.name]:
+
+e.target.value
+
 
 });
 
 
-setEdit(false);
+}
+
+
+
+
+
+
+
+
+
+async function uploadFile(){
+
+
+
+if(
+
+!file ||
+
+!form.indikator_id
+
+){
+
+
+alert(
+"Lengkapi data dan pilih file"
+);
+
+
+return;
 
 
 }
+
+
+
+
+
+const formData =
+
+new FormData();
+
+
+
+formData.append(
+
+"file",
+
+file
+
+);
+
+
+
+formData.append(
+
+"indikator_id",
+
+form.indikator_id
+
+);
+
+
+
+formData.append(
+
+"keterangan",
+
+form.keterangan
+
+);
+
+
+
+
+
+
+try{
+
+
+setLoading(true);
+
+
+
+const response =
+
+await fetch(
+
+`${API_BASE}/api/bukti`,
+
+{
+
+method:"POST",
+
+headers:header(),
+
+body:formData
+
+}
+
+);
+
+
+
+
+
+const result =
+
+await response.json();
+
+
+
+alert(
+result.message
+);
+
+
+
+setFile(null);
+
+
+setForm({
+
+indikator_id:"",
+
+keterangan:""
+
+});
+
+
+loadData();
+
+
+
+}
+
+
+catch(error){
+
+
+console.log(error);
+
+
+alert(
+"Gagal upload dokumen"
+);
+
+
+}
+
+finally{
+
+
+setLoading(false);
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+async function hapus(id){
+
+
+
+if(
+
+!window.confirm(
+
+"Hapus bukti dukung?"
+
+)
+
+)
+
+return;
+
+
+
+
+
+await fetch(
+
+`${API_BASE}/api/bukti/${id}`,
+
+{
+
+method:"DELETE",
+
+headers:header()
+
+}
+
+);
+
+
+
+loadData();
+
+
+
+}
+
+
+
+
 
 
 
@@ -190,21 +392,35 @@ setEdit(false);
 
 return(
 
-<div className="page-container">
+
+
+<div className="bukti-page">
 
 
 
-<div className="page-title">
+
+
+<div className="page-header">
+
+
+<div>
 
 
 <h1>
+
 📁 Bukti Dukung IKPD
+
 </h1>
 
 
 <p>
-Kelola dokumen pendukung evaluasi OPD IKPD ONLINE 2026
+
+Upload dan kelola dokumen pendukung evaluasi
+
 </p>
+
+
+</div>
 
 
 </div>
@@ -213,12 +429,20 @@ Kelola dokumen pendukung evaluasi OPD IKPD ONLINE 2026
 
 
 
-<div className="card">
+
+
+
+
+<div className="upload-card">
 
 
 <h2>
-➕ {edit?"Edit Bukti Dukung":"Tambah Bukti Dukung"}
+
+Upload Dokumen
+
 </h2>
+
+
 
 
 
@@ -226,56 +450,34 @@ Kelola dokumen pendukung evaluasi OPD IKPD ONLINE 2026
 <div className="form-grid">
 
 
-
 <input
 
-placeholder="OPD"
+name="indikator_id"
 
-value={form.opd}
+placeholder="ID Indikator"
 
-onChange={
-e=>setForm({
-...form,
-opd:e.target.value
-})
-}
+value={form.indikator_id}
 
-/>
-
-
-
-<input
-
-placeholder="Indikator"
-
-value={form.indikator}
-
-onChange={
-e=>setForm({
-...form,
-indikator:e.target.value
-})
-}
+onChange={changeForm}
 
 />
 
 
 
 
+
 <input
 
-placeholder="Nama Dokumen"
+name="keterangan"
 
-value={form.dokumen}
+placeholder="Keterangan dokumen"
 
-onChange={
-e=>setForm({
-...form,
-dokumen:e.target.value
-})
-}
+value={form.keterangan}
+
+onChange={changeForm}
 
 />
+
 
 
 
@@ -284,28 +486,12 @@ dokumen:e.target.value
 
 type="file"
 
-onChange={
-e=>setForm({
-...form,
-file:e.target.files[0]?.name
-})
-}
+onChange={e=>
 
-/>
+setFile(
+e.target.files[0]
+)
 
-
-
-<input
-
-placeholder="Keterangan"
-
-value={form.keterangan}
-
-onChange={
-e=>setForm({
-...form,
-keterangan:e.target.value
-})
 }
 
 />
@@ -317,54 +503,62 @@ keterangan:e.target.value
 
 
 
-<div className="button-area">
-
 
 <button
 
-className="btn-primary"
+className="upload-button"
 
-onClick={simpanData}
+onClick={uploadFile}
 
->
-
-💾 {edit?"Update":"Simpan"}
-
-</button>
-
-
-
-<button
-
-className="btn-reset"
-
-onClick={reset}
+disabled={loading}
 
 >
 
-↻ Reset
+
+<Upload size={18}/>
+
+
+{
+
+loading
+
+?
+
+"Mengupload..."
+
+:
+
+"Upload Bukti"
+
+}
+
+
 
 </button>
+
 
 
 </div>
 
 
 
-</div>
 
 
 
 
 
 
+<div className="table-card">
 
-<div className="card table-card">
 
 
 <h2>
-📋 Daftar Bukti Dukung
+
+Daftar Bukti Dukung
+
 </h2>
+
+
 
 
 
@@ -373,19 +567,37 @@ onClick={reset}
 
 <thead>
 
+
 <tr>
 
-<th>No</th>
+<th>
+No
+</th>
 
-<th>OPD</th>
+<th>
+Indikator
+</th>
 
-<th>Indikator</th>
 
-<th>Dokumen</th>
+<th>
+Keterangan
+</th>
 
-<th>Status</th>
 
-<th>Aksi</th>
+<th>
+File
+</th>
+
+
+<th>
+Status
+</th>
+
+
+<th>
+Aksi
+</th>
+
 
 </tr>
 
@@ -395,73 +607,121 @@ onClick={reset}
 
 
 
+
+
 <tbody>
 
 
 {
 
+data.length===0
+
+?
+
+
+<tr>
+
+<td colSpan="6">
+
+Belum ada dokumen
+
+</td>
+
+</tr>
+
+
+:
+
+
 data.map((item,index)=>(
+
 
 
 <tr key={item.id}>
 
 
 <td>
+
 {index+1}
+
 </td>
 
 
-<td>
-{item.opd}
-</td>
-
-
-<td>
-{item.indikator}
-</td>
-
-
-<td>
-{item.dokumen}
-</td>
 
 
 <td>
 
-<span>
-{item.status}
-</span>
+{item.indikator_id}
 
 </td>
+
+
+
+
+<td>
+
+{item.keterangan}
+
+</td>
+
 
 
 
 <td>
 
 
-<button
+<a
 
-className="btn-edit"
+href={item.file}
 
-onClick={()=>editData(item)}
+target="_blank"
+
+rel="noreferrer"
 
 >
 
-✏️
 
-</button>
+<Eye size={18}/>
 
+</a>
+
+
+
+</td>
+
+
+
+
+<td>
+
+
+<span className="status">
+
+{item.status || "Menunggu"}
+
+</span>
+
+
+
+</td>
+
+
+
+
+<td>
 
 
 <button
 
-className="btn-delete"
+className="delete"
 
 onClick={()=>hapus(item.id)}
 
 >
 
-🗑
+
+<Trash2 size={16}/>
+
 
 </button>
 
@@ -470,12 +730,17 @@ onClick={()=>hapus(item.id)}
 </td>
 
 
+
+
 </tr>
+
 
 
 ))
 
+
 }
+
 
 
 </tbody>
@@ -490,7 +755,10 @@ onClick={()=>hapus(item.id)}
 
 
 
+
+
 </div>
+
 
 );
 

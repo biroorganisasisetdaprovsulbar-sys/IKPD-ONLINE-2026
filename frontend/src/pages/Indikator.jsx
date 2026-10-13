@@ -1,67 +1,61 @@
-import React,{useState,useEffect} from "react";
+import React,{
+    useEffect,
+    useState
+} from "react";
+
+
+import {
+    Plus,
+    Pencil,
+    Trash2,
+    Search
+} from "lucide-react";
+
+
+import "./Indikator.css";
+
+
+
+const API_BASE =
+"http://localhost:5000";
+
+
 
 
 export default function Indikator(){
-
-
-const defaultData=[
-
-{
-id:1,
-nama:"Indeks Kinerja Pelayanan Publik",
-kategori:"Pelayanan",
-bobot:"30"
-},
-
-{
-id:2,
-nama:"Akuntabilitas Kinerja",
-kategori:"Manajemen",
-bobot:"40"
-}
-
-];
 
 
 
 const [data,setData]=useState([]);
 
 
+const [search,setSearch]=useState("");
+
+
+
 const [form,setForm]=useState({
 
-id:null,
-nama:"",
-kategori:"",
-bobot:""
+    kode_indikator:"",
+    nama_indikator:"",
+    bobot:""
 
 });
 
 
-const [edit,setEdit]=useState(false);
+
+const [editId,setEditId]=useState(null);
+
+
+const [loading,setLoading]=useState(false);
+
+
 
 
 
 useEffect(()=>{
 
 
-const simpan=
-localStorage.getItem("indikator");
-
-
-if(simpan){
-
-setData(JSON.parse(simpan));
-
-}else{
-
-setData(defaultData);
-
-localStorage.setItem(
-"indikator",
-JSON.stringify(defaultData)
-);
-
-}
+loadData();
 
 
 },[]);
@@ -69,123 +63,318 @@ JSON.stringify(defaultData)
 
 
 
-function simpanData(){
+
+function header(){
 
 
-if(
-!form.nama ||
-!form.kategori ||
-!form.bobot
-){
+return{
 
-alert("Lengkapi data indikator");
 
-return;
+"Content-Type":"application/json",
+
+
+Authorization:
+
+`Bearer ${localStorage.getItem("token")}`
+
+
+};
+
 
 }
 
 
 
-let hasil;
 
 
 
-if(edit){
+
+async function loadData(){
 
 
-hasil=data.map(item=>
+try{
 
-item.id===form.id
 
-?
+const response =
+await fetch(
 
-form
-
-:
-
-item
+`${API_BASE}/api/indikator`
 
 );
 
 
-}else{
+const result =
+await response.json();
 
 
-hasil=[
 
-...data,
 
-{
+if(result.success){
+
+
+setData(
+result.data
+);
+
+
+}
+else if(Array.isArray(result)){
+
+
+setData(result);
+
+
+}
+
+
+}
+
+catch(error){
+
+
+console.log(error);
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function handleChange(e){
+
+
+setForm({
 
 ...form,
 
-id:Date.now()
+[e.target.name]:
+
+e.target.value
+
+
+});
+
 
 }
 
-];
-
-
-}
 
 
 
 
-setData(hasil);
 
 
-localStorage.setItem(
-"indikator",
-JSON.stringify(hasil)
+
+async function saveData(){
+
+
+
+if(
+
+!form.kode_indikator ||
+
+!form.nama_indikator ||
+
+!form.bobot
+
+){
+
+
+alert(
+"Lengkapi data indikator"
 );
+
+
+return;
+
+
+}
+
+
+
+
+try{
+
+
+setLoading(true);
+
+
+
+const url = editId
+
+?
+
+`${API_BASE}/api/indikator/${editId}`
+
+:
+
+`${API_BASE}/api/indikator`;
+
+
+
+
+const method = editId
+
+?
+
+"PUT"
+
+:
+
+"POST";
+
+
+
+
+
+await fetch(
+
+url,
+
+{
+
+method,
+
+headers:header(),
+
+body:
+
+JSON.stringify(form)
+
+}
+
+);
+
 
 
 
 reset();
 
+
+loadData();
+
+
+
+}
+
+catch(error){
+
+
+console.log(error);
+
+
+}
+
+finally{
+
+
+setLoading(false);
+
+
+}
+
+
+
 }
 
 
 
 
-function editData(item){
-
-
-setForm(item);
-
-setEdit(true);
-
-
-}
 
 
 
 
-function hapus(id){
+
+function edit(item){
 
 
-if(confirm("Hapus indikator?")){
 
-
-const hasil=data.filter(
-item=>item.id!==id
+setEditId(
+item.id
 );
 
 
 
-setData(hasil);
+setForm({
+
+kode_indikator:
+
+item.kode_indikator,
 
 
-localStorage.setItem(
-"indikator",
-JSON.stringify(hasil)
+nama_indikator:
+
+item.nama_indikator,
+
+
+bobot:
+
+item.bobot
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+async function remove(id){
+
+
+
+if(
+!window.confirm(
+"Hapus indikator?"
+)
+
+)
+
+return;
+
+
+
+
+await fetch(
+
+`${API_BASE}/api/indikator/${id}`,
+
+{
+
+method:"DELETE",
+
+headers:header()
+
+}
+
 );
 
 
+
+loadData();
+
+
+
 }
 
 
-}
+
+
+
 
 
 
@@ -193,39 +382,98 @@ JSON.stringify(hasil)
 function reset(){
 
 
+setEditId(null);
+
+
+
 setForm({
 
-id:null,
-nama:"",
-kategori:"",
+kode_indikator:"",
+
+nama_indikator:"",
+
 bobot:""
+
 
 });
 
 
-setEdit(false);
-
-
 }
+
+
+
+
+
+
+
+
+const filtered =
+data.filter(item=>
+
+item.nama_indikator
+
+.toLowerCase()
+
+.includes(
+
+search.toLowerCase()
+
+)
+
+);
+
+
+
+const totalBobot =
+
+data.reduce(
+
+(total,item)=>
+
+total+
+
+Number(item.bobot||0)
+
+,
+
+0
+
+);
+
+
 
 
 
 
 return(
 
-<div className="page-container">
+
+
+<div className="indikator-page">
 
 
 
-<div className="page-title">
+<div className="page-header">
+
+
+<div>
 
 <h1>
-📄 Indikator IKPD
+
+📌 Master Indikator IKPD
+
 </h1>
 
+
 <p>
-Kelola indikator kinerja perangkat daerah IKPD ONLINE 2026
+
+Kelola indikator evaluasi perangkat daerah tahun 2026
+
 </p>
+
+
+</div>
+
 
 </div>
 
@@ -233,31 +481,95 @@ Kelola indikator kinerja perangkat daerah IKPD ONLINE 2026
 
 
 
-<div className="card">
+
+<div className="summary-indikator">
+
+
+<div>
+
+
+<span>
+
+Jumlah Indikator
+
+</span>
+
+
+<strong>
+
+{data.length}
+
+</strong>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<span>
+
+Total Bobot
+
+</span>
+
+
+<strong>
+
+{totalBobot}%
+
+</strong>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="form-card">
 
 
 <h2>
-➕ {edit?"Edit Indikator":"Tambah Indikator"}
+
+{editId ?
+
+"✏️ Edit Indikator"
+
+:
+
+"➕ Tambah Indikator"
+
+}
+
 </h2>
+
+
 
 
 
 <div className="form-grid">
 
 
-
 <input
 
-placeholder="Nama Indikator"
+name="kode_indikator"
 
-value={form.nama}
+placeholder="Kode indikator"
 
-onChange={
-e=>setForm({
-...form,
-nama:e.target.value
-})
-}
+value={form.kode_indikator}
+
+onChange={handleChange}
 
 />
 
@@ -265,38 +577,32 @@ nama:e.target.value
 
 <input
 
-placeholder="Kategori"
+name="nama_indikator"
 
-value={form.kategori}
+placeholder="Nama indikator"
 
-onChange={
-e=>setForm({
-...form,
-kategori:e.target.value
-})
-}
+value={form.nama_indikator}
+
+onChange={handleChange}
 
 />
 
 
 
-<input
 
-placeholder="Bobot (%)"
+<input
 
 type="number"
 
+name="bobot"
+
+placeholder="Bobot (%)"
+
 value={form.bobot}
 
-onChange={
-e=>setForm({
-...form,
-bobot:e.target.value
-})
-}
+onChange={handleChange}
 
 />
-
 
 
 </div>
@@ -304,18 +610,41 @@ bobot:e.target.value
 
 
 
-<div className="button-area">
+<div className="button-group">
 
 
 <button
 
-className="btn-primary"
+onClick={saveData}
 
-onClick={simpanData}
+disabled={loading}
 
 >
 
-💾 {edit?"Update":"Simpan"}
+<Plus size={18}/>
+
+{
+
+loading
+
+?
+
+"Menyimpan"
+
+:
+
+editId
+
+?
+
+"Update"
+
+:
+
+"Simpan"
+
+}
+
 
 </button>
 
@@ -323,13 +652,13 @@ onClick={simpanData}
 
 <button
 
-className="btn-reset"
+className="reset"
 
 onClick={reset}
 
 >
 
-↻ Reset
+Reset
 
 </button>
 
@@ -345,12 +674,37 @@ onClick={reset}
 
 
 
-<div className="card table-card">
 
 
-<h2>
-📋 Daftar Indikator
-</h2>
+
+<div className="table-card">
+
+
+
+<div className="search-box">
+
+
+<Search size={18}/>
+
+
+<input
+
+placeholder="Cari indikator..."
+
+value={search}
+
+onChange={e=>
+
+setSearch(e.target.value)
+
+}
+
+/>
+
+
+</div>
+
+
 
 
 
@@ -364,13 +718,14 @@ onClick={reset}
 
 <th>No</th>
 
-<th>Indikator</th>
+<th>Kode</th>
 
-<th>Kategori</th>
+<th>Indikator</th>
 
 <th>Bobot</th>
 
 <th>Aksi</th>
+
 
 </tr>
 
@@ -384,69 +739,88 @@ onClick={reset}
 
 {
 
-data.map((item,index)=>(
+filtered.map((item,index)=>(
+
+
 
 <tr key={item.id}>
 
 
 <td>
+
 {index+1}
+
 </td>
 
 
 <td>
-{item.nama}
-</td>
 
+{item.kode_indikator}
 
-<td>
-{item.kategori}
-</td>
-
-
-<td>
-{item.bobot} %
 </td>
 
 
 
 <td>
 
+{item.nama_indikator}
 
-<button
+</td>
 
-className="btn-edit"
 
-onClick={()=>editData(item)}
 
->
+<td>
 
-✏️
+{item.bobot}%
 
-</button>
+</td>
+
+
+
+
+<td>
 
 
 
 <button
 
-className="btn-delete"
+className="edit"
 
-onClick={()=>hapus(item.id)}
+onClick={()=>edit(item)}
 
 >
 
-🗑
+<Pencil size={16}/>
 
 </button>
 
 
+
+
+<button
+
+className="delete"
+
+onClick={()=>remove(item.id)}
+
+>
+
+<Trash2 size={16}/>
+
+</button>
+
+
+
 </td>
+
 
 
 </tr>
 
 
+
 ))
+
 
 }
 
@@ -459,11 +833,15 @@ onClick={()=>hapus(item.id)}
 </table>
 
 
-</div>
-
-
 
 </div>
+
+
+
+
+
+</div>
+
 
 );
 

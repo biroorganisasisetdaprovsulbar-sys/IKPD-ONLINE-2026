@@ -1,37 +1,64 @@
-import React,{useState,useEffect} from "react";
+import React,{
+    useEffect,
+    useState
+} from "react";
+
+
+import {
+    CheckCircle,
+    Save,
+    ClipboardCheck
+} from "lucide-react";
+
+
+import "./Penilaian.css";
+
+
+
+const API_BASE =
+"http://localhost:5000";
+
 
 
 export default function Penilaian(){
 
 
-const [data,setData]=useState([]);
+
+const [indikator,setIndikator]=useState([]);
 
 
-const [form,setForm]=useState({
-
-id:null,
-opd:"",
-indikator:"",
-nilai:"",
-catatan:""
-
-});
+const [nilai,setNilai]=useState({});
 
 
-const [edit,setEdit]=useState(false);
+const [total,setTotal]=useState(0);
+
+
+const [loading,setLoading]=useState(false);
+
+
+
+
+const user =
+JSON.parse(
+localStorage.getItem("user")
+);
+
+
+
+const opd_id =
+user?.opd_id;
+
+
+
 
 
 
 useEffect(()=>{
 
 
-const simpan=
-localStorage.getItem("penilaian");
+if(opd_id){
 
-
-if(simpan){
-
-setData(JSON.parse(simpan));
+loadData();
 
 }
 
@@ -41,16 +68,303 @@ setData(JSON.parse(simpan));
 
 
 
-function simpanData(){
 
 
-if(
-!form.opd ||
-!form.indikator ||
-!form.nilai
-){
 
-alert("Lengkapi data penilaian");
+
+
+function headers(){
+
+
+return{
+
+"Content-Type":"application/json",
+
+Authorization:
+
+`Bearer ${localStorage.getItem("token")}`
+
+};
+
+
+}
+
+
+
+
+
+
+
+async function loadData(){
+
+
+
+try{
+
+
+
+const indikatorRes =
+await fetch(
+
+`${API_BASE}/api/indikator`
+
+);
+
+
+
+const indikatorData =
+await indikatorRes.json();
+
+
+
+
+let list=[];
+
+
+if(indikatorData.success){
+
+list=indikatorData.data;
+
+}
+else if(Array.isArray(indikatorData)){
+
+
+list=indikatorData;
+
+
+}
+
+
+
+setIndikator(list);
+
+
+
+
+
+
+const nilaiRes =
+await fetch(
+
+`${API_BASE}/api/penilaian/${opd_id}`,
+
+{
+
+headers:headers()
+
+}
+
+);
+
+
+
+const nilaiData =
+await nilaiRes.json();
+
+
+
+
+
+if(nilaiData.success){
+
+
+
+let temp={};
+
+
+
+nilaiData.data.forEach(item=>{
+
+
+temp[item.indikator_id]={
+
+
+nilai_input:
+
+item.nilai_input,
+
+
+nilai_bobot:
+
+item.nilai_bobot
+
+
+};
+
+
+
+});
+
+
+
+setNilai(temp);
+
+
+hitungTotal(temp);
+
+
+}
+
+
+
+}
+
+catch(error){
+
+console.log(error);
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function ubahNilai(item,value){
+
+
+
+let angka =
+Number(value);
+
+
+
+if(angka<0)
+
+angka=0;
+
+
+
+if(angka>100)
+
+angka=100;
+
+
+
+
+
+
+const bobot =
+Number(item.bobot);
+
+
+
+
+const nilaiBobot =
+
+(
+angka*bobot
+)/100;
+
+
+
+
+
+
+const data={
+
+
+...nilai,
+
+
+[item.id]:{
+
+
+nilai_input:
+
+angka,
+
+
+nilai_bobot:
+
+nilaiBobot
+
+
+}
+
+
+};
+
+
+
+
+setNilai(data);
+
+
+hitungTotal(data);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function hitungTotal(data){
+
+
+
+let totalNilai=0;
+
+
+
+Object.values(data)
+
+.forEach(item=>{
+
+
+totalNilai +=
+
+Number(
+item.nilai_bobot || 0
+);
+
+
+
+});
+
+
+
+setTotal(
+
+Number(
+totalNilai.toFixed(2)
+)
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+async function simpan(){
+
+
+
+if(!opd_id){
+
+alert(
+"OPD tidak ditemukan"
+);
 
 return;
 
@@ -58,122 +372,124 @@ return;
 
 
 
-let hasil;
+const payload =
+
+indikator.map(item=>{
 
 
+const itemNilai =
 
-if(edit){
+nilai[item.id]
 
-
-hasil=data.map(item=>
-
-item.id===form.id
-
-?
-
-form
-
-:
-
-item
-
-);
-
-
-}else{
-
-
-hasil=[
-
-...data,
+||
 
 {
 
-...form,
+nilai_input:0,
 
-id:Date.now()
+nilai_bobot:0
 
-}
-
-];
-
-
-}
+};
 
 
 
-setData(hasil);
+return{
 
 
-localStorage.setItem(
-"penilaian",
-JSON.stringify(hasil)
-);
+opd_id,
 
 
-
-reset();
-
-
-}
+indikator_id:item.id,
 
 
+nilai_input:
+
+itemNilai.nilai_input,
 
 
+nilai_bobot:
 
-function editData(item){
-
-setForm(item);
-
-setEdit(true);
-
-}
+itemNilai.nilai_bobot
 
 
+};
 
 
-function hapus(id){
-
-
-if(confirm("Hapus penilaian?")){
-
-
-const hasil=data.filter(
-item=>item.id!==id
-);
-
-
-setData(hasil);
-
-
-localStorage.setItem(
-"penilaian",
-JSON.stringify(hasil)
-);
-
-
-}
-
-
-}
-
-
-
-
-function reset(){
-
-setForm({
-
-id:null,
-opd:"",
-indikator:"",
-nilai:"",
-catatan:""
 
 });
 
 
-setEdit(false);
+
+
+
+try{
+
+
+setLoading(true);
+
+
+
+const response =
+
+await fetch(
+
+`${API_BASE}/api/penilaian`,
+
+{
+
+method:"POST",
+
+headers:headers(),
+
+body:
+
+JSON.stringify(payload)
+
+}
+
+);
+
+
+
+const result =
+
+await response.json();
+
+
+
+alert(
+result.message
+);
+
+
+
+loadData();
+
+
+
+}
+
+catch(error){
+
+
+console.log(error);
+
+
+alert(
+"Gagal menyimpan penilaian"
+);
+
+
+}
+
+finally{
+
+
+setLoading(false);
+
+
+}
+
 
 
 }
@@ -181,33 +497,47 @@ setEdit(false);
 
 
 
-function statusNilai(nilai){
-
-if(nilai>=90){
-
-return "Sangat Baik";
-
-}
 
 
-if(nilai>=75){
-
-return "Baik";
-
-}
 
 
-if(nilai>=60){
 
-return "Cukup";
+const jumlahTerisi =
 
-}
+indikator.filter(item=>
+
+nilai[item.id]?.nilai_input
+
+!==undefined
+
+).length;
 
 
-return "Perlu Perbaikan";
 
 
-}
+const progress =
+
+indikator.length===0
+
+?
+
+0
+
+:
+
+Math.round(
+
+jumlahTerisi /
+
+indikator.length *
+
+100
+
+);
+
+
+
+
 
 
 
@@ -216,141 +546,49 @@ return "Perlu Perbaikan";
 return(
 
 
-<div className="page-container">
+<div className="penilaian-page">
 
 
 
-<div className="page-title">
+
+
+<div className="page-header">
+
+
+<div>
+
 
 <h1>
-📊 Penilaian IKPD
+
+<ClipboardCheck/>
+
+ Penilaian IKPD
+
 </h1>
 
+
 <p>
-Kelola hasil evaluasi kinerja OPD IKPD ONLINE 2026
+
+Evaluasi indikator kinerja perangkat daerah tahun 2026
+
 </p>
 
-</div>
-
-
-
-
-
-<div className="card">
-
-
-<h2>
-➕ {edit?"Edit Penilaian":"Input Penilaian"}
-</h2>
-
-
-
-<div className="form-grid">
-
-
-<input
-
-placeholder="OPD"
-
-value={form.opd}
-
-onChange={
-e=>setForm({
-...form,
-opd:e.target.value
-})
-}
-
-/>
-
-
-
-<input
-
-placeholder="Indikator"
-
-value={form.indikator}
-
-onChange={
-e=>setForm({
-...form,
-indikator:e.target.value
-})
-}
-
-/>
-
-
-
-
-<input
-
-type="number"
-
-placeholder="Nilai (0-100)"
-
-value={form.nilai}
-
-onChange={
-e=>setForm({
-...form,
-nilai:e.target.value
-})
-}
-
-/>
-
-
-
-<input
-
-placeholder="Catatan"
-
-value={form.catatan}
-
-onChange={
-e=>setForm({
-...form,
-catatan:e.target.value
-})
-}
-
-/>
-
 
 </div>
 
 
 
-
-<div className="button-area">
-
-
-<button
-
-className="btn-primary"
-
-onClick={simpanData}
-
->
-
-💾 {edit?"Update":"Simpan"}
-
-</button>
+<div className="score-box">
 
 
+Total Nilai
 
-<button
 
-className="btn-reset"
+<strong>
 
-onClick={reset}
+{total}
 
->
-
-↻ Reset
-
-</button>
+</strong>
 
 
 </div>
@@ -364,13 +602,53 @@ onClick={reset}
 
 
 
-<div className="card table-card">
+
+<div className="progress-card">
 
 
-<h2>
-📋 Daftar Penilaian
-</h2>
+<div>
 
+
+Progress Penilaian
+
+<strong>
+
+{progress}%
+
+</strong>
+
+
+</div>
+
+
+<div className="progress-bar">
+
+
+<span
+
+style={{
+
+width:`${progress}%`
+
+}}
+
+/>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="table-card">
 
 
 
@@ -381,19 +659,35 @@ onClick={reset}
 
 <tr>
 
-<th>No</th>
 
-<th>OPD</th>
+<th>
+Status
+</th>
 
-<th>Indikator</th>
 
-<th>Nilai</th>
+<th>
+Kode
+</th>
 
-<th>Status</th>
 
-<th>Catatan</th>
+<th>
+Indikator
+</th>
 
-<th>Aksi</th>
+
+<th>
+Bobot
+</th>
+
+
+<th>
+Nilai
+</th>
+
+
+<th>
+Nilai Bobot
+</th>
 
 
 </tr>
@@ -402,104 +696,201 @@ onClick={reset}
 
 
 
+
+
 <tbody>
 
 
 {
 
-data.map((item,index)=>(
+indikator.map(item=>(
+
 
 
 <tr key={item.id}>
 
 
 <td>
-{index+1}
-</td>
 
 
-<td>
-{item.opd}
-</td>
+{
 
+nilai[item.id]
 
-<td>
-{item.indikator}
-</td>
+?
 
+<CheckCircle
 
-<td>
-{item.nilai}
-</td>
+size={20}
 
+/>
 
-<td>
+:
 
-<span>
+""
 
-{statusNilai(item.nilai)}
-
-</span>
+}
 
 
 </td>
 
 
-<td>
-{item.catatan}
-</td>
 
 
 <td>
 
+{item.kode_indikator}
 
-<button
-
-className="btn-edit"
-
-onClick={()=>editData(item)}
-
->
-
-✏️
-
-</button>
+</td>
 
 
 
-<button
+<td>
 
-className="btn-delete"
+{item.nama_indikator}
 
-onClick={()=>hapus(item.id)}
+</td>
 
->
 
-🗑
 
-</button>
+<td>
+
+{item.bobot}%
+
+</td>
+
+
+
+<td>
+
+
+<input
+
+
+type="number"
+
+
+min="0"
+
+
+max="100"
+
+
+value={
+
+nilai[item.id]?.nilai_input
+
+??
+
+""
+
+}
+
+
+
+onChange={e=>
+
+ubahNilai(
+
+item,
+
+e.target.value
+
+)
+
+}
+
+
+/>
 
 
 
 </td>
+
+
+
+
+<td>
+
+
+{
+
+nilai[item.id]?.nilai_bobot
+
+??
+
+0
+
+}
+
+
+
+</td>
+
 
 
 </tr>
 
 
+
 ))
 
+
 }
+
 
 
 </tbody>
 
 
-
 </table>
 
 
+
+
+
+
+
+<button
+
+className="save-button"
+
+onClick={simpan}
+
+disabled={loading}
+
+>
+
+
+<Save size={18}/>
+
+
+{
+
+loading
+
+?
+
+"Menyimpan..."
+
+:
+
+"Simpan Penilaian"
+
+}
+
+
+
+</button>
+
+
+
+
+
 </div>
+
+
+
 
 
 

@@ -1,294 +1,275 @@
-/* =========================
-   PAGE CONTAINER
-========================= */
-
 .pengguna-page{
-    padding:30px;
+
+padding:10px;
+
 }
 
 
-/* =========================
-   TITLE
-========================= */
 
-.pengguna-page h1{
-    font-size:32px;
-    margin-bottom:10px;
-    font-weight:800;
+
+.page-header h1{
+
+margin:0;
+
+font-size:30px;
+
 }
 
 
-/* =========================
-   CARD STYLE
-========================= */
+
+.page-header p{
+
+color:#64748b;
+
+}
+
+
+
 
 .form-card,
 .table-card{
 
-    background:white;
 
-    border-radius:20px;
-
-    padding:30px;
-
-    margin-top:25px;
-
-    box-shadow:
-    0 10px 30px rgba(0,0,0,0.08);
-
-}
+background:white;
 
 
-/* =========================
-   SECTION TITLE
-========================= */
-
-.form-card h2,
-.table-card h2{
-
-    font-size:24px;
-
-    margin-bottom:25px;
-
-}
+padding:30px;
 
 
-/* =========================
-   FORM GRID
-========================= */
+border-radius:20px;
 
 
-.form-card form{
-
-    display:grid;
-
-    grid-template-columns:
-    repeat(5,1fr);
-
-    gap:18px;
-
-    align-items:end;
-
-}
+margin-top:25px;
 
 
-.form-card label{
+box-shadow:
 
-    display:block;
+0 10px 25px #0001;
 
-    font-size:14px;
-
-    font-weight:600;
-
-    margin-bottom:7px;
-
-}
-
-
-.form-card input,
-.form-card select{
-
-    width:100%;
-
-    height:42px;
-
-    border-radius:10px;
-
-    border:1px solid #ddd;
-
-    padding:0 12px;
-
-    font-size:14px;
-
-    outline:none;
-
-}
-
-
-.form-card input:focus,
-.form-card select:focus{
-
-    border-color:#075985;
-
-    box-shadow:
-    0 0 0 3px rgba(7,89,133,.15);
 
 }
 
 
 
-/* =========================
- BUTTON
-========================= */
 
 
-.button-area{
+.form-grid{
 
-    margin-top:25px;
 
-    display:flex;
+display:grid;
 
-    gap:15px;
+
+grid-template-columns:
+
+repeat(4,1fr);
+
+
+gap:15px;
+
 
 }
 
 
-.btn-save{
 
-    background:#075985;
-
-    color:white;
-
-    border:none;
-
-    padding:12px 25px;
-
-    border-radius:10px;
-
-    cursor:pointer;
-
-    font-weight:600;
-
-}
+input,
+select{
 
 
-.btn-save:hover{
+padding:13px;
 
-    background:#064e73;
-
-}
-
-.btn-edit{
-
-background:#2563eb;
-
-color:white;
-
-border:none;
-
-width:35px;
-
-height:35px;
 
 border-radius:10px;
 
-margin-right:8px;
+
+border:1px solid #ddd;
+
+
+}
+
+
+
+.save-button{
+
+
+margin-top:20px;
+
+
+background:#2563eb;
+
+
+color:white;
+
+
+border:none;
+
+
+padding:13px 25px;
+
+
+border-radius:12px;
+
+
+display:flex;
+
+
+align-items:center;
+
+
+gap:10px;
+
 
 cursor:pointer;
 
-}
-
-
-
-.btn-edit:hover{
-
-background:#1d4ed8;
-
-}
-
-.btn-reset{
-
-    background:#f1f5f9;
-
-    border:none;
-
-    padding:12px 25px;
-
-    border-radius:10px;
-
-    cursor:pointer;
-
-}
-
-
-/* =========================
- TABLE
-========================= */
-
-
-.table-card{
-
-    margin-top:40px;
 
 }
 
 
 
-.table-card table{
 
-    width:100%;
 
-    border-collapse:collapse;
+.search-box{
+
+
+display:flex;
+
+
+align-items:center;
+
+
+gap:10px;
+
+
+margin-bottom:20px;
+
 
 }
 
 
 
-.table-card thead{
+.search-box input{
 
-    background:#075985;
 
-    color:white;
+width:300px;
+
 
 }
 
 
 
-.table-card th{
 
-    padding:16px;
 
-    text-align:left;
+table{
+
+
+width:100%;
+
+
+border-collapse:collapse;
+
 
 }
 
 
 
-.table-card td{
+th,
+td{
 
-    padding:15px;
 
-    border-bottom:1px solid #eee;
+padding:15px;
+
+
+border-bottom:
+
+1px solid #eee;
+
 
 }
 
 
 
-.table-card tbody tr:hover{
 
-    background:#f8fafc;
+
+.role{
+
+
+background:#dbeafe;
+
+
+color:#1d4ed8;
+
+
+padding:6px 12px;
+
+
+border-radius:20px;
+
+
+font-size:13px;
+
 
 }
 
 
 
-/* =========================
- DELETE BUTTON
-========================= */
 
 
-.btn-delete{
+.edit{
 
-    background:#ef4444;
 
-    color:white;
+background:#0ea5e9;
 
-    border:none;
 
-    width:35px;
+color:white;
 
-    height:35px;
 
-    border-radius:10px;
+border:none;
 
-    cursor:pointer;
+
+padding:8px;
+
+
+border-radius:8px;
+
+
+margin-right:5px;
+
 
 }
 
 
 
-.btn-delete:hover{
+.delete{
 
-    background:#dc2626;
+
+background:#dc2626;
+
+
+color:white;
+
+
+border:none;
+
+
+padding:8px;
+
+
+border-radius:8px;
+
+
+}
+
+
+
+
+
+@media(max-width:900px){
+
+
+.form-grid{
+
+grid-template-columns:1fr;
+
+}
+
 
 }

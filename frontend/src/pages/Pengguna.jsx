@@ -1,203 +1,260 @@
-import React, { useState } from "react";
+import React,{
+    useEffect,
+    useState
+} from "react";
+
+
+import {
+    Search,
+    UserPlus,
+    Pencil,
+    Trash2
+} from "lucide-react";
+
+
 import "./Pengguna.css";
+
+
+
+const API_BASE =
+"http://localhost:5000";
+
+
+
 
 
 export default function Pengguna(){
 
 
-const daftarOPD = JSON.parse(
-localStorage.getItem("opd")
-) || [];
+
+const [users,setUsers]=useState([]);
+
+
+const [search,setSearch]=useState("");
 
 
 
-const [users,setUsers] = useState(
-JSON.parse(localStorage.getItem("users")) || [
-{
-nama:"Administrator",
-opd:"-",
-username:"admin",
-status:"Aktif",
-role:"Administrator"
-}
-]
-);
+const [form,setForm]=useState({
 
-const [editMode,setEditMode] = useState(false);
-const [editId,setEditId] = useState(null);
-
-const handleEdit = (user)=>{
-
-setEditMode(true);
-
-setEditId(user.id);
-
-
-setForm({
-
-nama:user.nama,
-
-opd:user.opd,
-
-username:user.username,
-
-password:"",
-
-role:user.role
-
-});
-
-
-};
-
-const handleSubmit=(e)=>{
-
-e.preventDefault();
-
-
-if(editMode){
-
-
-const updateData=userList.map((item)=>
-
-item.id===editId
-
-?
-
-{
-...item,
-...form
-}
-
-:
-
-item
-
-);
-
-
-setUserList(updateData);
-
-
-setEditMode(false);
-
-setEditId(null);
-
-
-}
-
-else{
-
-
-setUserList([
-
-...userList,
-
-{
-
-id:Date.now(),
-
-...form
-
-}
-
-]);
-
-
-}
-
-
-resetForm();
-
-
-};
-
-const [form,setForm] = useState({
-
-nama:"",
-opd:"",
-username:"",
-password:"",
-role:"Operator OPD"
+    nama:"",
+    username:"",
+    role:"OPD",
+    status:"Aktif"
 
 });
 
 
 
+const [editId,setEditId]=useState(null);
 
 
-function handleChange(e){
+
+useEffect(()=>{
+
+
+loadUsers();
+
+
+},[]);
+
+
+
+
+
+
+
+
+function headers(){
+
+
+return{
+
+"Content-Type":"application/json",
+
+Authorization:
+
+`Bearer ${localStorage.getItem("token")}`
+
+};
+
+
+}
+
+
+
+
+
+
+
+
+async function loadUsers(){
+
+
+try{
+
+
+const response =
+
+await fetch(
+
+`${API_BASE}/api/users`,
+
+{
+
+headers:headers()
+
+}
+
+);
+
+
+
+const result =
+
+await response.json();
+
+
+
+
+
+if(result.success){
+
+
+setUsers(
+result.data
+);
+
+
+}
+else if(Array.isArray(result)){
+
+
+setUsers(result);
+
+
+}
+
+
+
+}
+
+catch(error){
+
+
+console.log(error);
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+function change(e){
+
 
 setForm({
 
 ...form,
 
-[e.target.name]:e.target.value
+[e.target.name]:
+
+e.target.value
+
 
 });
 
-}
-
-
-
-
-
-function simpanUser(e){
-
-e.preventDefault();
-
-
-if(
-!form.nama ||
-!form.opd ||
-!form.username ||
-!form.password
-){
-
-alert("Data belum lengkap");
-return;
 
 }
 
 
 
-const userBaru={
-
-nama:form.nama,
-
-opd:form.opd,
-
-username:form.username,
-
-status:"Aktif",
-
-role:form.role
-
-};
 
 
 
-const data=[
-
-...users,
-
-userBaru
-
-];
 
 
 
-setUsers(data);
+async function save(){
 
 
-localStorage.setItem(
-"users",
-JSON.stringify(data)
+
+const url = editId
+
+?
+
+`${API_BASE}/api/users/${editId}`
+
+:
+
+`${API_BASE}/api/users`;
+
+
+
+
+
+const method = editId
+
+?
+
+"PUT"
+
+:
+
+"POST";
+
+
+
+
+
+
+try{
+
+
+await fetch(
+
+url,
+
+{
+
+method,
+
+headers:headers(),
+
+body:
+
+JSON.stringify(form)
+
+}
+
 );
 
 
 
-resetForm();
+
+reset();
+
+
+loadUsers();
+
+
+
+}
+
+catch(error){
+
+
+console.log(error);
+
+
+}
 
 
 }
@@ -206,16 +263,104 @@ resetForm();
 
 
 
-function resetForm(){
+
+
+
+
+async function remove(id){
+
+
+
+if(
+
+!window.confirm(
+
+"Hapus pengguna?"
+
+)
+
+)
+
+return;
+
+
+
+
+await fetch(
+
+`${API_BASE}/api/users/${id}`,
+
+{
+
+method:"DELETE",
+
+headers:headers()
+
+}
+
+);
+
+
+
+loadUsers();
+
+
+}
+
+
+
+
+
+
+
+
+
+function edit(item){
+
+
+
+setEditId(item.id);
+
+
+
+setForm({
+
+nama:item.nama,
+
+username:item.username,
+
+role:item.role,
+
+status:item.status
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+function reset(){
+
+
+setEditId(null);
+
 
 
 setForm({
 
 nama:"",
-opd:"",
+
 username:"",
-password:"",
-role:"Operator OPD"
+
+role:"OPD",
+
+status:"Aktif"
 
 });
 
@@ -225,37 +370,28 @@ role:"Operator OPD"
 
 
 
-function hapusUser(index){
 
 
-if(
-window.confirm(
-"Hapus akun ini?"
+
+const filtered =
+
+users.filter(item=>
+
+item.nama
+
+.toLowerCase()
+
+.includes(
+
+search.toLowerCase()
+
 )
-){
 
-
-const data=users.filter(
-(_,i)=>i!==index
 );
 
 
 
-setUsers(data);
 
-
-
-localStorage.setItem(
-"users",
-JSON.stringify(data)
-);
-
-
-
-}
-
-
-}
 
 
 
@@ -263,19 +399,42 @@ JSON.stringify(data)
 
 return(
 
+
+
 <div className="pengguna-page">
 
 
 
+
+
+<div className="page-header">
+
+
+<div>
+
+
 <h1>
+
 👥 Manajemen Pengguna
+
 </h1>
 
 
-
 <p>
-Kelola akun administrator dan operator OPD IKPD ONLINE 2026
+
+Kelola akun pengguna IKPD Online 2026
+
 </p>
+
+
+</div>
+
+
+</div>
+
+
+
+
 
 
 
@@ -284,222 +443,153 @@ Kelola akun administrator dan operator OPD IKPD ONLINE 2026
 <div className="form-card">
 
 
-
 <h2>
-➕ Tambah Operator OPD
+
+{
+
+editId
+
+?
+
+"✏️ Edit Pengguna"
+
+:
+
+"➕ Tambah Pengguna"
+
+}
+
 </h2>
 
 
 
 
-<form onSubmit={simpanUser}>
 
+<div className="form-grid">
 
-<div className="pengguna-grid">
-
-
-
-<div>
-
-<label>
-Nama Operator
-</label>
 
 
 <input
 
-type="text"
-
 name="nama"
+
+placeholder="Nama pengguna"
 
 value={form.nama}
 
-onChange={handleChange}
-
-placeholder="Masukkan nama operator"
+onChange={change}
 
 />
 
-</div>
 
 
 
+<input
+
+name="username"
+
+placeholder="Username"
+
+value={form.username}
+
+onChange={change}
+
+/>
 
 
-<div>
 
-<label>
-OPD
-</label>
 
 
 
 <select
 
-name="opd"
+name="role"
 
-value={form.opd}
+value={form.role}
 
-onChange={handleChange}
+onChange={change}
 
 >
 
 
-<option value="">
--- Pilih OPD --
-</option>
+<option>
 
-
-
-{
-
-daftarOPD.map(
-
-(item,index)=>(
-
-
-<option key={index}>
-
-{
-item.nama || item
-}
+Administrator
 
 </option>
 
 
-)
+<option>
 
-)
+Evaluator
 
-}
+</option>
 
+
+<option>
+
+OPD
+
+</option>
 
 
 </select>
 
 
-</div>
 
 
 
 
+<select
 
+name="status"
 
-<div>
+value={form.status}
 
-<label>
-Username
-</label>
+onChange={change}
 
-
-<input
-
-type="text"
-
-name="username"
-
-value={form.username}
-
-onChange={handleChange}
-
-placeholder="Username"
-
-/>
-
-
-</div>
-
-
-
-
-
-
-<div>
-
-<label>
-Password
-</label>
-
-
-<input
-
-type="password"
-
-name="password"
-
-value={form.password}
-
-onChange={handleChange}
-
-placeholder="Password"
-
-/>
-
-
-</div>
-
-
-
-
-
-
-
-<div>
-
-<label>
-Role
-</label>
-
-
-<input
-
-type="text"
-
-value="Operator OPD"
-
-disabled
-
-/>
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-<div className="button-area">
-
-
-<button 
-className="btn-save"
 >
 
-{
-editMode 
-? "✏️ Update"
-: "💾 Simpan"
-}
 
-</button>
+<option>
+
+Aktif
+
+</option>
+
+
+<option>
+
+Nonaktif
+
+</option>
+
+
+</select>
+
+
+
+
+</div>
+
+
 
 
 
 <button
 
-type="button"
+className="save-button"
 
-className="btn-reset"
-
-onClick={resetForm}
+onClick={save}
 
 >
 
-↻ Reset
+
+<UserPlus size={18}/>
+
+
+Simpan Pengguna
+
 
 </button>
 
@@ -508,12 +598,6 @@ onClick={resetForm}
 </div>
 
 
-
-</form>
-
-
-
-</div>
 
 
 
@@ -525,9 +609,33 @@ onClick={resetForm}
 
 
 
-<h2>
-📋 Daftar Akun Operator
-</h2>
+
+
+<div className="search-box">
+
+
+<Search size={18}/>
+
+
+<input
+
+placeholder="Cari pengguna..."
+
+value={search}
+
+onChange={e=>
+
+setSearch(e.target.value)
+
+}
+
+/>
+
+
+</div>
+
+
+
 
 
 
@@ -537,24 +645,45 @@ onClick={resetForm}
 
 <thead>
 
+
 <tr>
 
-<th>No</th>
+<th>
+No
+</th>
 
-<th>Nama</th>
 
-<th>OPD</th>
+<th>
+Nama
+</th>
 
-<th>Username</th>
 
-<th>Status</th>
+<th>
+Username
+</th>
 
-<th>Aksi</th>
+
+<th>
+Role
+</th>
+
+
+<th>
+Status
+</th>
+
+
+<th>
+Aksi
+</th>
 
 
 </tr>
 
+
 </thead>
+
+
 
 
 
@@ -562,68 +691,91 @@ onClick={resetForm}
 <tbody>
 
 
-
 {
 
-users.map(
-
-(user,index)=>(
+filtered.map((item,index)=>(
 
 
-<tr key={index}>
+
+<tr key={item.id}>
 
 
 <td>
+
 {index+1}
+
 </td>
 
 
 <td>
-{user.nama}
+
+{item.nama}
+
 </td>
 
 
 <td>
-{user.opd}
+
+{item.username}
+
 </td>
 
 
 <td>
-{user.username}
+
+<span className="role">
+
+{item.role}
+
+</span>
+
 </td>
 
 
+
 <td>
-{user.status}
+
+{item.status}
+
 </td>
 
 
+
 <td>
+
 
 
 <button
 
-className="btn-edit"
+className="edit"
 
-onClick={()=>handleEdit(user)}
+onClick={()=>edit(item)}
 
 >
 
-✏️
+
+<Pencil size={16}/>
+
 
 </button>
 
 
 
+
 <button
 
-className="btn-delete"
+className="delete"
+
+onClick={()=>remove(item.id)}
 
 >
 
-🗑
+
+<Trash2 size={16}/>
+
 
 </button>
+
 
 
 
@@ -635,10 +787,8 @@ className="btn-delete"
 
 
 
-)
+))
 
-
-)
 
 }
 
@@ -652,8 +802,10 @@ className="btn-delete"
 
 
 
-
 </div>
+
+
+
 
 
 

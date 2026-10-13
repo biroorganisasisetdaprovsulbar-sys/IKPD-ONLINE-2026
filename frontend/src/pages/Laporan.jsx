@@ -1,30 +1,57 @@
-import React,{useState,useEffect} from "react";
+import React,{
+    useEffect,
+    useState
+} from "react";
+
+
+import {
+    Search,
+    Download,
+    Award,
+    TrendingUp,
+    Building2
+} from "lucide-react";
+
+
+import "./Laporan.css";
+
+
+
+const API_BASE =
+"http://localhost:5000";
+
+
 
 
 export default function Laporan(){
 
 
+
 const [data,setData]=useState([]);
 
 
-const [tahun,setTahun]=useState("2026");
+const [summary,setSummary]=useState({
 
-const [opd,setOpd]=useState("Semua OPD");
+    total:0,
 
+    rata:0,
+
+    tinggi:0,
+
+    rendah:0
+
+});
+
+
+
+const [search,setSearch]=useState("");
 
 
 
 useEffect(()=>{
 
 
-const nilai =
-JSON.parse(
-localStorage.getItem("penilaian")
-)
-|| [];
-
-
-setData(nilai);
+loadData();
 
 
 },[]);
@@ -33,34 +60,217 @@ setData(nilai);
 
 
 
-function statusNilai(nilai){
 
 
-if(nilai>=90){
 
-return "Sangat Baik";
+async function loadData(){
+
+
+
+try{
+
+
+
+const token =
+
+localStorage.getItem("token");
+
+
+
+
+const headers={
+
+Authorization:
+
+`Bearer ${token}`
+
+};
+
+
+
+
+
+const response =
+
+await fetch(
+
+`${API_BASE}/api/dashboard/grafik`,
+
+{
+
+headers
+
+}
+
+);
+
+
+
+const result =
+
+await response.json();
+
+
+
+
+
+if(Array.isArray(result)){
+
+
+setData(result);
+
+
+
+calculateSummary(result);
+
+
 
 }
 
 
-if(nilai>=75){
 
-return "Baik";
+}
+
+catch(error){
+
+
+console.log(error);
+
 
 }
 
 
-if(nilai>=60){
+}
 
-return "Cukup";
+
+
+
+
+
+
+
+function calculateSummary(list){
+
+
+
+if(list.length===0)
+
+return;
+
+
+
+
+const values =
+
+list.map(item=>
+
+Number(
+item.nilai_akhir || 0
+)
+
+);
+
+
+
+
+
+const total =
+
+values.reduce(
+
+(a,b)=>a+b,
+
+0
+
+);
+
+
+
+setSummary({
+
+total:list.length,
+
+rata:
+
+(total/list.length)
+
+.toFixed(2),
+
+
+tinggi:
+
+Math.max(...values),
+
+
+rendah:
+
+Math.min(...values)
+
+});
+
+
 
 }
 
 
-return "Perlu Perbaikan";
+
+
+
+
+
+
+
+function kategori(nilai){
+
+
+
+if(nilai>=90)
+
+return
+
+"Sangat Baik";
+
+
+
+if(nilai>=75)
+
+return
+
+"Baik";
+
+
+
+return
+
+"Perlu Perbaikan";
 
 
 }
+
+
+
+
+
+
+
+const filtered =
+
+data.filter(item=>
+
+item.nama_opd
+
+.toLowerCase()
+
+.includes(
+
+search.toLowerCase()
+
+)
+
+);
+
+
+
 
 
 
@@ -69,19 +279,31 @@ return "Perlu Perbaikan";
 
 return(
 
-<div className="page-container">
+
+
+<div className="laporan-page">
 
 
 
-<div className="page-title">
+
+
+<div className="page-header">
+
+
+<div>
+
 
 <h1>
-📑 Laporan IKPD
+
+📄 Laporan IKPD 2026
+
 </h1>
 
 
 <p>
-Rekapitulasi hasil evaluasi kinerja OPD IKPD ONLINE 2026
+
+Rekapitulasi hasil evaluasi perangkat daerah
+
 </p>
 
 
@@ -90,119 +312,13 @@ Rekapitulasi hasil evaluasi kinerja OPD IKPD ONLINE 2026
 
 
 
+<button className="download">
 
-<div className="card">
+<Download size={18}/>
 
-
-<h2>
-🔎 Filter Laporan
-</h2>
-
-
-
-<div className="form-grid">
-
-
-
-<select
-
-value={tahun}
-
-onChange={
-e=>setTahun(e.target.value)
-}
-
->
-
-<option>
-2026
-</option>
-
-<option>
-2027
-</option>
-
-
-</select>
-
-
-
-
-
-<select
-
-value={opd}
-
-onChange={
-e=>setOpd(e.target.value)
-}
-
->
-
-
-<option>
-Semua OPD
-</option>
-
-
-{
-
-[...new Set(
-data.map(
-item=>item.opd
-)
-)]
-
-.map(
-(item,index)=>(
-
-<option key={index}>
-{item}
-</option>
-
-)
-
-)
-
-
-}
-
-
-
-</select>
-
-
-
-
-</div>
-
-
-
-<div className="button-area">
-
-
-<button className="btn-primary">
-
-🔍 Tampilkan
+Export
 
 </button>
-
-
-<button className="btn-reset">
-
-📄 Export PDF
-
-</button>
-
-
-<button className="btn-reset">
-
-📊 Export Excel
-
-</button>
-
-
-</div>
 
 
 
@@ -214,12 +330,100 @@ item=>item.opd
 
 
 
-<div className="card table-card">
 
 
-<h2>
-📊 Rekap Penilaian OPD
-</h2>
+<div className="summary-grid">
+
+
+
+<Card
+
+icon={<Building2/>}
+
+title="Total OPD"
+
+value={summary.total}
+
+/>
+
+
+
+<Card
+
+icon={<TrendingUp/>}
+
+title="Rata-rata Nilai"
+
+value={summary.rata}
+
+/>
+
+
+
+<Card
+
+icon={<Award/>}
+
+title="Nilai Tertinggi"
+
+value={summary.tinggi}
+
+/>
+
+
+
+<Card
+
+icon={<Award/>}
+
+title="Nilai Terendah"
+
+value={summary.rendah}
+
+/>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="table-card">
+
+
+
+<div className="search">
+
+
+<Search size={18}/>
+
+
+<input
+
+placeholder="Cari OPD..."
+
+value={search}
+
+onChange={e=>
+
+setSearch(e.target.value)
+
+}
+
+
+/>
+
+
+</div>
+
+
+
 
 
 
@@ -232,15 +436,32 @@ item=>item.opd
 
 <tr>
 
-<th>No</th>
+<th>
 
-<th>OPD</th>
+Ranking
 
-<th>Indikator</th>
+</th>
 
-<th>Nilai</th>
 
-<th>Status</th>
+<th>
+
+Nama OPD
+
+</th>
+
+
+<th>
+
+Nilai
+
+</th>
+
+
+<th>
+
+Kategori
+
+</th>
 
 
 </tr>
@@ -250,74 +471,100 @@ item=>item.opd
 
 
 
+
 <tbody>
 
 
 
 {
 
-data
+filtered.map((item,index)=>(
 
-.filter(
-
-item=>
-
-opd==="Semua OPD"
-
-?
-
-true
-
-:
-
-item.opd===opd
-
-)
-
-.map(
-
-(item,index)=>(
 
 
 <tr key={index}>
 
 
 <td>
-{index+1}
+
+
+#{index+1}
+
+
 </td>
 
-
-<td>
-{item.opd}
-</td>
-
-
-<td>
-{item.indikator}
-</td>
-
-
-<td>
-{item.nilai}
-</td>
 
 
 <td>
 
-{statusNilai(
-item.nilai
-)}
+
+{item.nama_opd}
+
 
 </td>
+
+
+
+<td>
+
+
+{
+
+Number(
+
+item.nilai_akhir
+
+)
+
+.toFixed(2)
+
+}
+
+
+
+</td>
+
+
+
+
+<td>
+
+
+<span
+
+className="badge"
+
+>
+
+
+{
+
+kategori(
+
+Number(
+
+item.nilai_akhir
+
+)
+
+)
+
+}
+
+
+
+</span>
+
+
+</td>
+
 
 
 </tr>
 
 
-)
 
-
-)
+))
 
 
 }
@@ -332,6 +579,67 @@ item.nilai
 
 
 </div>
+
+
+
+
+
+
+
+</div>
+
+
+);
+
+
+}
+
+
+
+
+
+
+
+function Card({
+
+icon,
+
+title,
+
+value
+
+}){
+
+
+return(
+
+<div className="stat-card">
+
+
+<div>
+
+{icon}
+
+</div>
+
+
+<section>
+
+<p>
+
+{title}
+
+</p>
+
+
+<h2>
+
+{value}
+
+</h2>
+
+
+</section>
 
 
 

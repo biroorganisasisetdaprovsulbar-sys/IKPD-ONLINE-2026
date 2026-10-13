@@ -1,257 +1,545 @@
-import React, {useState, useEffect} from "react";
+import React,{
+useEffect,
+useState
+} from "react";
+
+
+import "./DataOPD.css";
+
+
+const API_BASE =
+"http://localhost:5000";
+
 
 
 export default function DataOPD(){
 
-const defaultData=[
-{
-id:1,
-nama:"Dinas Pendidikan",
-kode:"DISDIK",
-kepala:"Kepala Dinas Pendidikan"
-},
-{
-id:2,
-nama:"Dinas Kesehatan",
-kode:"DINKES",
-kepala:"Kepala Dinas Kesehatan"
-}
-];
 
 
-const [data,setData]=useState([]);
+const [opd,setOpd]=useState([]);
+
+const [loading,setLoading]=useState(true);
+
+
+const [search,setSearch]=useState("");
+
+
 
 const [form,setForm]=useState({
-id:null,
-nama:"",
-kode:"",
-kepala:""
+
+nama_opd:"",
+kode_opd:"",
+tahun:"2026"
+
 });
 
 
-const [edit,setEdit]=useState(false);
+
+const [editId,setEditId]=useState(null);
+
+
+
 
 
 
 useEffect(()=>{
 
-const simpan=
-localStorage.getItem("opd");
-
-
-if(simpan){
-
-setData(JSON.parse(simpan));
-
-}else{
-
-setData(defaultData);
-
-localStorage.setItem(
-"opd",
-JSON.stringify(defaultData)
-);
-
-}
+loadOPD();
 
 },[]);
 
 
 
-function handleSave(){
 
 
-if(
-!form.nama ||
-!form.kode ||
-!form.kepala
-){
 
-alert("Lengkapi data OPD");
-return;
+
+function header(){
+
+
+return {
+
+"Content-Type":
+"application/json",
+
+Authorization:
+
+`Bearer ${localStorage.getItem("token")}`
+
+};
+
 
 }
 
 
-let hasil;
 
 
-if(edit){
-
-hasil=data.map(item=>
-item.id===form.id
-?
-form
-:
-item
-);
 
 
-}else{
 
 
-hasil=[
-...data,
+
+async function loadOPD(){
+
+
+try{
+
+
+const res =
+await fetch(
+
+`${API_BASE}/api/opd`,
+
 {
-...form,
-id:Date.now()
-}
-];
 
+headers:
+header()
 
 }
 
-
-setData(hasil);
-
-
-localStorage.setItem(
-"opd",
-JSON.stringify(hasil)
 );
 
 
-resetForm();
+
+const data =
+await res.json();
+
+
+
+console.log(
+"DATA OPD",
+data
+);
+
+
+
+if(data.success){
+
+setOpd(data.data);
+
+}
+
+
+
+}
+
+catch(err){
+
+
+console.log(err);
+
+
+}
+
+finally{
+
+
+setLoading(false);
+
+
+}
+
 
 }
 
 
 
 
-function resetForm(){
+
+
+
+
+
+
+function inputChange(e){
+
 
 setForm({
 
-id:null,
-nama:"",
-kode:"",
-kepala:""
+...form,
+
+[e.target.name]:
+e.target.value
+
 
 });
 
 
-setEdit(false);
+}
+
+
+
+
+
+
+
+
+
+async function simpan(){
+
+
+
+try{
+
+
+let url =
+`${API_BASE}/api/opd`;
+
+
+
+let method =
+"POST";
+
+
+
+if(editId){
+
+
+url +=
+`/${editId}`;
+
+
+method =
+"PUT";
+
 
 }
 
 
 
 
-function editData(item){
+const res =
+await fetch(
 
-setForm(item);
+url,
 
-setEdit(true);
+{
+
+method,
+
+headers:
+header(),
+
+
+body:
+
+JSON.stringify(form)
 
 }
 
-
-
-
-function hapus(id){
-
-if(confirm("Hapus OPD?")){
-
-
-const hasil=data.filter(
-item=>item.id!==id
 );
 
 
-setData(hasil);
+
+const data =
+await res.json();
 
 
-localStorage.setItem(
-"opd",
-JSON.stringify(hasil)
+
+alert(data.message);
+
+
+
+setForm({
+
+nama_opd:"",
+
+kode_opd:"",
+
+tahun:"2026"
+
+});
+
+
+setEditId(null);
+
+
+loadOPD();
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.log(error);
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function edit(item){
+
+
+setForm({
+
+nama_opd:item.nama_opd,
+
+kode_opd:item.kode_opd,
+
+tahun:item.tahun
+
+});
+
+
+setEditId(item.id);
+
+
+}
+
+
+
+
+
+
+
+
+
+async function hapus(id){
+
+
+if(!window.confirm(
+"Yakin hapus OPD?"
+))
+
+return;
+
+
+
+await fetch(
+
+`${API_BASE}/api/opd/${id}`,
+
+{
+
+method:"DELETE",
+
+headers:
+header()
+
+}
+
 );
 
 
+loadOPD();
+
+
 }
 
-}
 
 
 
 
-return (
-
-<div className="page-container">
 
 
-<div className="page-title">
+
+
+const filter =
+
+opd.filter(item=>
+
+item.nama_opd
+
+.toLowerCase()
+
+.includes(
+
+search.toLowerCase()
+
+)
+
+
+);
+
+
+
+
+
+
+
+
+
+return(
+
+
+<div className="opd-page">
+
+
+
+<div className="page-header">
+
+
+<div>
+
 
 <h1>
-📋 Data OPD
+🏢 Data OPD
 </h1>
 
+
 <p>
-Kelola data organisasi perangkat daerah IKPD ONLINE 2026
+Manajemen Perangkat Daerah IKPD 2026
 </p>
 
 
 </div>
 
 
+</div>
 
-<div className="card">
+
+
+
+
+
+
+
+
+<div className="form-card">
 
 
 <h2>
-➕ {edit ? "Edit OPD":"Tambah Data OPD"}
+
+{
+editId
+
+?
+
+"Edit OPD"
+
+:
+
+"Tambah OPD"
+
+}
+
 </h2>
+
+
 
 
 
 <div className="form-grid">
 
 
+
 <input
+
+name="nama_opd"
 
 placeholder="Nama OPD"
 
-value={form.nama}
+value={form.nama_opd}
 
-onChange={
-e=>setForm({
-...form,
-nama:e.target.value
-})
-}
+onChange={inputChange}
 
 />
 
 
 
 <input
+
+name="kode_opd"
 
 placeholder="Kode OPD"
 
-value={form.kode}
+value={form.kode_opd}
 
-onChange={
-e=>setForm({
-...form,
-kode:e.target.value
-})
-}
+onChange={inputChange}
 
 />
-
 
 
 
 <input
 
-placeholder="Kepala OPD"
+name="tahun"
 
-value={form.kepala}
+placeholder="Tahun"
+
+value={form.tahun}
+
+onChange={inputChange}
+
+/>
+
+
+
+<button
+
+onClick={simpan}
+
+>
+
+{
+
+editId
+
+?
+
+"Simpan Perubahan"
+
+:
+
+"Tambah OPD"
+
+}
+
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="table-card">
+
+
+<div className="table-header">
+
+
+<h2>
+Daftar OPD
+</h2>
+
+
+
+<input
+
+placeholder="Cari OPD..."
+
+value={search}
 
 onChange={
-e=>setForm({
-...form,
-kepala:e.target.value
-})
+
+e=>setSearch(e.target.value)
+
 }
 
 />
@@ -261,46 +549,24 @@ kepala:e.target.value
 
 
 
-<div className="button-area">
-
-
-<button
-className="btn-primary"
-onClick={handleSave}
->
-
-💾 {edit?"Update":"Simpan"}
-
-</button>
-
-
-
-<button
-className="btn-reset"
-onClick={resetForm}
->
-
-↻ Reset
-
-</button>
-
-
-</div>
-
-
-
-</div>
 
 
 
 
-<div className="card table-card">
 
 
-<h2>
-📋 Daftar OPD
-</h2>
+{
 
+loading
+
+?
+
+<p>
+Memuat data...
+</p>
+
+
+:
 
 
 <table>
@@ -310,11 +576,30 @@ onClick={resetForm}
 
 <tr>
 
-<th>No</th>
-<th>Nama OPD</th>
-<th>Kode</th>
-<th>Kepala</th>
-<th>Aksi</th>
+<th>
+No
+</th>
+
+
+<th>
+Nama OPD
+</th>
+
+
+<th>
+Kode
+</th>
+
+
+<th>
+Tahun
+</th>
+
+
+<th>
+Aksi
+</th>
+
 
 </tr>
 
@@ -322,22 +607,40 @@ onClick={resetForm}
 
 
 
+
+
 <tbody>
 
 
+
 {
-data.map((item,index)=>(
+
+filter.map(
+
+(item,index)=>(
+
 
 <tr key={item.id}>
 
 
-<td>{index+1}</td>
+<td>
+{index+1}
+</td>
 
-<td>{item.nama}</td>
 
-<td>{item.kode}</td>
+<td>
+{item.nama_opd}
+</td>
 
-<td>{item.kepala}</td>
+
+<td>
+{item.kode_opd}
+</td>
+
+
+<td>
+{item.tahun}
+</td>
 
 
 <td>
@@ -345,13 +648,13 @@ data.map((item,index)=>(
 
 <button
 
-className="btn-edit"
+className="edit"
 
-onClick={()=>editData(item)}
+onClick={()=>edit(item)}
 
 >
 
-✏️
+Edit
 
 </button>
 
@@ -359,13 +662,13 @@ onClick={()=>editData(item)}
 
 <button
 
-className="btn-delete"
+className="delete"
 
 onClick={()=>hapus(item.id)}
 
 >
 
-🗑
+Hapus
 
 </button>
 
@@ -377,20 +680,33 @@ onClick={()=>hapus(item.id)}
 </tr>
 
 
-))
+)
+
+
+)
+
+
 
 }
 
 
-</tbody>
 
+</tbody>
 
 
 </table>
 
 
 
+}
+
+
+
 </div>
+
+
+
+
 
 
 
@@ -398,6 +714,7 @@ onClick={()=>hapus(item.id)}
 
 
 );
+
 
 
 }

@@ -1,115 +1,23 @@
 import React from "react";
-import GantiPassword from "./pages/GantiPassword";
-import Verifikasi from "./pages/Verifikasi";
-import BuktiDukungan from "./pages/BuktiDukungan";
+
 import {
-  BrowserRouter,
-  Routes,
-  Route
+Outlet
 } from "react-router-dom";
 
 
 import Layout from "./pages/Layout";
-import Dashboard from "./pages/Dashboard";
-import DataOPD from "./pages/DataOPD";
-import Penilaian from "./pages/Penilaian";
-import Indikator from "./pages/Indikator";
-import Pengguna from "./pages/Pengguna";
-import Laporan from "./pages/Laporan";
-import BuktiDukung from "./pages/BuktiDukung";
-import Login from "./pages/Login";
 
 
+export default function App(){
 
-function App(){
+return(
 
+<Layout>
 
-return (
+<Outlet/>
 
-<BrowserRouter>
-
-
-<Routes>
-
-
-{/* halaman login */}
-<Route
-path="/"
-element={<Login/>}
-/>
-
-
-{/* semua halaman setelah login */}
-<Route element={<Layout/>}>
-
-<Route
-path="/ganti-password"
-element={<GantiPassword/>}
-/>
-
-<Route
-path="/dashboard"
-element={<Dashboard/>}
-/>
-
-
-<Route
-path="/data-opd"
-element={<DataOPD/>}
-/>
-
-
-<Route
-path="/penilaian"
-element={<Penilaian/>}
-/>
-
-
-<Route
-path="/indikator"
-element={<Indikator/>}
-/>
-
-
-<Route path="/pengguna" element={<Pengguna />} />
-
-
-<Route
-path="/laporan"
-element={<Laporan/>}
-/>
-
-
-<Route
-path="/bukti"
-element={<BuktiDukung/>}
-/>
-
-<Route
-path="/verifikasi"
-element={<Verifikasi/>}
-/>
-
-</Route>
-
-<Route
-
-path="/bukti"
-
-element={<BuktiDukungan/>}
-
-/>
-
-</Routes>
-
-
-</BrowserRouter>
-
+</Layout>
 
 );
 
-
 }
-
-
-export default App;

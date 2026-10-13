@@ -1,34 +1,76 @@
+// ==================================================
+// DATABASE CONNECTION
+// IKPD ONLINE 2026
+// PRODUCTION COMPATIBLE
+// ==================================================
+
+require("dotenv").config();
+
 const mysql = require("mysql2");
 
 
-const db = mysql.createConnection({
+// MYSQL POOL
 
-host:"localhost",
+const db = mysql.createPool({
 
-user:"root",
+    host: process.env.DB_HOST || "127.0.0.1",
 
-password:"",
+    user: process.env.DB_USER || "root",
 
-database:"ikpd_online"
+    password: process.env.DB_PASSWORD || "",
+
+    database: process.env.DB_NAME || "ikpd_online",
+
+    port: Number(process.env.DB_PORT || 3306),
+
+
+    waitForConnections:true,
+
+    connectionLimit:10,
+
+    queueLimit:0,
+
+
+    charset:"utf8mb4",
+
+    timezone:"+07:00"
 
 });
 
 
-db.connect((err)=>{
 
-if(err){
 
-console.log(err);
+// TEST CONNECTION
 
-}else{
+db.getConnection((err,connection)=>{
 
-console.log(
-"Database Connected"
-);
 
-}
+    if(err){
+
+        console.log(
+            "DATABASE CONNECTION ERROR:",
+            err.message
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "MYSQL DATABASE CONNECTED"
+    );
+
+
+    connection.release();
+
 
 });
 
 
-module.exports=db;
+
+
+// EXPORT LANGSUNG POOL
+// AGAR ROUTE LAMA TETAP BERJALAN
+
+module.exports = db;

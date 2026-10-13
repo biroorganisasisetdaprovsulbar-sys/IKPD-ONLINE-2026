@@ -1,0 +1,26 @@
+.dashboard-page{
+    padding:20px;
+}
+
+
+.dashboard-page h1{
+    margin-bottom:20px;
+}
+
+
+.stat-card{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+
+.stat-card h2{
+    margin:0 0 10px;
+}
+
+
+.stat-card p{
+    color:#64748b;
+}
