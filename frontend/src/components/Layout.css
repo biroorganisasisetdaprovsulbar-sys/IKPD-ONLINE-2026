@@ -1,707 +1,99 @@
-*{
-    box-sizing:border-box;
-}
+.app-layout {
 
-
-body{
-
-    margin:0;
-
-    font-family:
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
-    background:#f4f7fb;
-
-}
-
-
-
-/* =====================
-SIDEBAR
-===================== */
-
-
-.sidebar{
-
-    position:fixed;
-
-    left:0;
-
-    top:0;
-
-    width:240px;
-
-    height:100vh;
-
-    background:
-    linear-gradient(
-        180deg,
-        #075985,
-        #0369a1
-    );
-
-    padding:25px 18px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    color:white;
-
-}
-
-
-
-.brand{
-
-    text-align:center;
-
-    margin-bottom:35px;
-
-}
-
-
-
-.brand h2{
-
-    margin:0;
-
-    font-size:32px;
-
-    font-weight:800;
-
-}
-
-
-
-.brand p{
-
-    margin:5px 0;
-
-    font-size:14px;
-
-    opacity:.8;
-
-}
-
-
-
-
-
-.menu{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:8px;
-
-    flex:1;
-
-}
-
-
-
-.menu a{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    padding:14px 16px;
-
-    color:white;
-
-    text-decoration:none;
-
-    border-radius:12px;
-
-    font-size:15px;
-
-    transition:.2s;
-
-}
-
-
-
-.menu a:hover{
-
-    background:
-    rgba(255,255,255,.15);
-
-}
-
-
-
-.menu a.active{
-
-    background:white;
-
-    color:#075985;
-
-    font-weight:700;
-
-}
-
-
-
-
-.logout{
-
-    height:45px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#ef4444;
-
-    color:white;
-
-    font-size:15px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-}
-
-
-
-
-
-/* =====================
-MAIN AREA
-===================== */
-
-
-.main-area{
-
-    margin-left:240px;
 
     min-height:100vh;
 
-}
-
-
-
-
-
-.content-area{
-
-
-    padding:
-
-    30px 40px;
-
-
-}
-
-
-
-
-
-/* =====================
-NAVBAR
-===================== */
-
-
-.navbar{
-
-
-    height:80px;
-
-    background:white;
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:
-
-    0 40px;
-
-
-    border-bottom:
-
-    1px solid #e5e7eb;
-
-
-}
-
-
-
-.navbar h2{
-
-    margin:0;
-
-    font-size:22px;
-
-    color:#0f172a;
-
-}
-
-
-
-.navbar p{
-
-    margin:5px 0 0;
-
-    color:#64748b;
-
-    font-size:13px;
-
-}
-
-
-
-
-.nav-right{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:25px;
-
-}
-
-
-
-
-
-.period{
-
-    background:#eff6ff;
-
-    padding:12px 18px;
-
-    border-radius:14px;
-
-    text-align:center;
-
-}
-
-
-
-.period span{
-
-    display:block;
-
-    font-size:12px;
-
-    color:#64748b;
-
-}
-
-
-
-.period strong{
-
-    font-size:22px;
-
-    color:#2563eb;
-
-}
-
-
-
-
-
-.profile{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:12px;
-
-}
-
-
-
-.avatar{
-
-    width:42px;
-
-    height:42px;
-
-    border-radius:50%;
-
-    background:#e0f2fe;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    font-size:22px;
-
-}
-
-
-.profile small{
-
-    color:#64748b;
-
-}*{
-    box-sizing:border-box;
-}
-
-
-body{
-
-    margin:0;
-
-    font-family:
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
-    background:#f4f7fb;
-
-}
-
-
-
-/* =====================
-SIDEBAR
-===================== */
-
-
-.sidebar{
-
-    position:fixed;
-
-    left:0;
-
-    top:0;
-
-    width:240px;
-
-    height:100vh;
 
     background:
-    linear-gradient(
-        180deg,
-        #075985,
-        #0369a1
-    );
 
-    padding:25px 18px;
 
-    display:flex;
+    #f1f5f9;
 
-    flex-direction:column;
-
-    color:white;
 
 }
 
 
 
-.brand{
+/* AREA KANAN SIDEBAR */
 
-    text-align:center;
+.main-area {
 
-    margin-bottom:35px;
 
-}
+    margin-left:260px;
 
-
-
-.brand h2{
-
-    margin:0;
-
-    font-size:32px;
-
-    font-weight:800;
-
-}
-
-
-
-.brand p{
-
-    margin:5px 0;
-
-    font-size:14px;
-
-    opacity:.8;
-
-}
-
-
-
-
-
-.menu{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:8px;
-
-    flex:1;
-
-}
-
-
-
-.menu a{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    padding:14px 16px;
-
-    color:white;
-
-    text-decoration:none;
-
-    border-radius:12px;
-
-    font-size:15px;
-
-    transition:.2s;
-
-}
-
-
-
-.menu a:hover{
-
-    background:
-    rgba(255,255,255,.15);
-
-}
-
-
-
-.menu a.active{
-
-    background:white;
-
-    color:#075985;
-
-    font-weight:700;
-
-}
-
-
-
-
-.logout{
-
-    height:45px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#ef4444;
-
-    color:white;
-
-    font-size:15px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-}
-
-
-
-
-
-/* =====================
-MAIN AREA
-===================== */
-
-
-.main-area{
-
-    margin-left:240px;
 
     min-height:100vh;
 
-}
-
-
-
-
-
-.content-area{
-
-
-    padding:
-
-    30px 40px;
-
-
-}
-
-
-
-
-
-/* =====================
-NAVBAR
-===================== */
-
-
-.navbar{
-
-
-    height:80px;
-
-    background:white;
 
     display:flex;
 
-    justify-content:space-between;
 
-    align-items:center;
-
-    padding:
-
-    0 40px;
-
-
-    border-bottom:
-
-    1px solid #e5e7eb;
+    flex-direction:column;
 
 
 }
 
 
 
-.navbar h2{
+/* HEADER */
 
-    margin:0;
+.main-area header {
 
-    font-size:22px;
 
-    color:#0f172a;
+    position:sticky;
+
+
+    top:0;
+
+
+    z-index:50;
+
 
 }
 
 
 
-.navbar p{
+/* KONTEN */
 
-    margin:5px 0 0;
+.content-area {
 
-    color:#64748b;
 
-    font-size:13px;
+    padding:30px;
+
+
+    min-height:calc(100vh - 80px);
+
+
+    box-sizing:border-box;
+
 
 }
 
 
 
+/* RESPONSIVE */
 
-.nav-right{
 
-    display:flex;
+@media(max-width:900px){
 
-    align-items:center;
 
-    gap:25px;
+.main-area {
+
+
+    margin-left:80px;
+
 
 }
 
 
 
+.content-area {
 
 
-.period{
+    padding:20px;
 
-    background:#eff6ff;
-
-    padding:12px 18px;
-
-    border-radius:14px;
-
-    text-align:center;
 
 }
 
-
-
-.period span{
-
-    display:block;
-
-    font-size:12px;
-
-    color:#64748b;
-
-}
-
-
-
-.period strong{
-
-    font-size:22px;
-
-    color:#2563eb;
-
-}
-
-
-
-
-
-.profile{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:12px;
-
-}
-
-
-
-.avatar{
-
-    width:42px;
-
-    height:42px;
-
-    border-radius:50%;
-
-    background:#e0f2fe;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    font-size:22px;
-
-}
-
-
-.profile small{
-
-    color:#64748b;
 
 }

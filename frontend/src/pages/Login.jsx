@@ -1,273 +1,411 @@
-import React,{
-useState
-}
-from "react";
-
-
-import {
-useNavigate
-}
-from "react-router-dom";
-
-
-import {
-LogIn
-}
-from "lucide-react";
-
-
-import api from "../services/api";
-
-
+import React, { useState } from "react";
+import ikpdData from "../data/ikpdData";
 import "./Login.css";
 
 
+function Login() {
 
 
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [search, setSearch] = useState("");
 
-export default function Login(){
 
 
+  function handleLogin(e){
 
-const navigate =
-useNavigate();
+    e.preventDefault();
 
+    alert("Login berhasil");
 
+  }
 
-const [form,setForm]=useState({
 
-username:"",
 
-password:""
 
-});
 
+  // ==========================
+  // REKAP DATA
+  // ==========================
 
 
-const [loading,setLoading]=useState(false);
+  const totalOPD = ikpdData.length;
 
 
-const [error,setError]=useState("");
+  const jumlahTinggi = ikpdData.filter(
+    item => item.indeks === "Tinggi"
+  ).length;
 
 
 
+  const jumlahSedang = ikpdData.filter(
+    item => item.indeks === "Sedang"
+  ).length;
 
 
-function change(e){
 
+  const jumlahRendah = ikpdData.filter(
+    item => item.indeks === "Rendah"
+  ).length;
 
-setForm({
 
-...form,
 
-[e.target.name]:
 
-e.target.value
 
+  // ==========================
+  // SEARCH OPD
+  // ==========================
 
-});
 
+  const filteredOPD = ikpdData.filter(item =>
 
-}
+    item.opd
+    .toLowerCase()
+    .includes(
+      search.toLowerCase()
+    )
 
+  );
 
 
 
 
 
-
-async function submit(e){
-
-
-e.preventDefault();
-
-
-
-try{
-
-
-setLoading(true);
-
-
-setError("");
-
-
-
-
-
-const response =
-
-await api.post(
-
-"/api/login",
-
-form
-
-);
-
-
-
-
-
-const result =
-response.data;
-
-
-
-
-
-if(result.success){
-
-
-
-localStorage.setItem(
-
-"token",
-
-result.token
-
-);
-
-
-
-localStorage.setItem(
-
-"user",
-
-JSON.stringify(
-
-result.user
-
-)
-
-);
-
-
-
-
-
-
-// REDIRECT ROLE
-
-
-
-if(
-
-result.user.role==="OPD"
-
-){
-
-
-navigate("/penilaian");
-
-
-}
-
-
-else if(
-
-result.user.role==="Evaluator"
-
-){
-
-
-navigate("/laporan");
-
-
-}
-
-
-else{
-
-
-navigate("/dashboard");
-
-
-}
-
-
-
-}
-
-else{
-
-
-setError(
-
-result.message
-
-);
-
-
-}
-
-
-
-}
-
-catch(error){
-
-
-setError(
-
-"Username atau password salah"
-
-);
-
-
-}
-
-finally{
-
-
-setLoading(false);
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-return(
-
-
+  return (
 
 <div className="login-page">
 
 
-
-<div className="login-card">
-
+<div className="login-container">
 
 
-<div className="login-logo">
 
-IKPD
+
+
+{/* ======================
+    PANEL DATA OPD
+======================= */}
+
+
+
+<div className="login-information">
+
+
+<h3>
+Rekap Evaluasi OPD
+</h3>
+
+
+
+
+
+{/* REKAP */}
+
+
+
+<div className="rekap-box">
+
+
+<div className="rekap-item total">
+
+<span>
+Total OPD
+</span>
+
+<b>
+{totalOPD}
+</b>
 
 </div>
 
 
 
 
-<h1>
 
-IKPD ONLINE 2026
+<div className="rekap-item tinggi">
+
+<span>
+Tinggi
+</span>
+
+<b>
+{jumlahTinggi}
+</b>
+
+</div>
+
+
+
+
+
+<div className="rekap-item sedang">
+
+<span>
+Sedang
+</span>
+
+<b>
+{jumlahSedang}
+</b>
+
+</div>
+
+
+
+
+
+<div className="rekap-item rendah">
+
+<span>
+Rendah
+</span>
+
+<b>
+{jumlahRendah}
+</b>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+{/* SEARCH */}
+
+
+
+<div className="search-box">
+
+
+<input
+
+type="text"
+
+placeholder="Cari nama OPD..."
+
+value={search}
+
+onChange={
+(e)=>setSearch(e.target.value)
+}
+
+/>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+{/* LIST OPD */}
+
+
+
+<div className="opd-list">
+
+
+
+{
+
+
+filteredOPD.map((item,index)=>(
+
+
+
+<div
+
+className="opd-card"
+
+key={index}
+
+>
+
+
+
+
+<h4>
+
+
+<span className="nomor-opd">
+
+{String(index+1).padStart(2,"0")}.
+
+</span>
+
+
+{item.opd}
+
+
+
+</h4>
+
+
+
+
+
+
+
+<div className="nilai-box">
+
+
+
+{
+
+
+item.variabel.map((nilai,i)=>(
+
+
+<span key={i}>
+
+V{i+1}:{nilai}
+
+</span>
+
+
+))
+
+
+}
+
+
+
+</div>
+
+
+
+
+
+
+
+<div className="total-box">
+
+
+<span>
+
+Total :
+
+<b>
+
+{item.total}
+
+</b>
+
+
+</span>
+
+
+
+
+
+<label>
+
+{item.indeks}
+
+</label>
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+))
+
+
+}
+
+
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+{/* ======================
+    PANEL LOGIN
+======================= */}
+
+
+
+<div className="login-panel">
+
+
+
+
+
+<div className="header-login">
+
+
+
+<h1 className="brand-title">
+
+
+<span className="brand-line line-1">
+
+IKPD
+
+</span>
+
+
+<span className="brand-line line-2">
+
+ONLINE
+
+</span>
+
+
+<span className="brand-line line-3">
+
+2026
+
+</span>
+
 
 </h1>
 
 
 
-<p>
 
-Sistem Evaluasi Kinerja Perangkat Daerah
+
+
+<p className="brand-subtitle">
+
+
+Sistem Informasi Evaluasi Indeks Kematangan
+
+<br/>
+
+Perangkat Daerah
+
 
 </p>
 
@@ -275,20 +413,46 @@ Sistem Evaluasi Kinerja Perangkat Daerah
 
 
 
-<form onSubmit={submit}>
+</div>
+
+
+
+
+
+
+
+<div className="login-box">
+
+
+<h2>
+
+Login Sistem
+
+</h2>
+
+
+
+
+
+<form onSubmit={handleLogin}>
+
 
 
 <input
 
-name="username"
+type="text"
 
 placeholder="Username"
 
-value={form.username}
+value={username}
 
-onChange={change}
+onChange={
+(e)=>setUsername(e.target.value)
+}
 
 />
+
+
 
 
 
@@ -297,13 +461,13 @@ onChange={change}
 
 type="password"
 
-name="password"
-
 placeholder="Password"
 
-value={form.password}
+value={password}
 
-onChange={change}
+onChange={
+(e)=>setPassword(e.target.value)
+}
 
 />
 
@@ -311,64 +475,44 @@ onChange={change}
 
 
 
-{
+<button>
 
-error &&
-
-<div className="error">
-
-{error}
-
-</div>
-
-}
-
-
-
-
-
-<button
-
-disabled={loading}
-
->
-
-
-<LogIn size={18}/>
-
-
-{
-
-loading
-
-?
-
-"Masuk..."
-
-:
-
-"Login"
-
-}
-
-
+LOGIN
 
 </button>
-
 
 
 
 </form>
 
 
-</div>
 
 
 
 </div>
 
 
-);
+
+
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+  );
 
 
 }
+
+
+
+export default Login;

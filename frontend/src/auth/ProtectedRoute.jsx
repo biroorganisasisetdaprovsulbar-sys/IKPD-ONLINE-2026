@@ -1,38 +1,34 @@
 import React from "react";
 
-
 import {
-
 Navigate
-
-}
-from "react-router-dom";
+} from "react-router-dom";
 
 
 
-export default function ProtectedRoute({
+const ProtectedRoute = ({
+children,
+allowedRoles=[]
+})=>{
 
-children
 
-}){
-
-
-const token =
-
-localStorage.getItem("token");
-
+const user = JSON.parse(
+localStorage.getItem("user")
+) || {};
 
 
 
-if(!token){
+const role = user.role || "";
 
 
-return(
+
+if(!allowedRoles.includes(role)){
+
+
+return (
 
 <Navigate
-
-to="/login"
-
+to="/dashboard"
 />
 
 );
@@ -42,8 +38,11 @@ to="/login"
 
 
 
-
 return children;
 
 
-}
+
+};
+
+
+export default ProtectedRoute;

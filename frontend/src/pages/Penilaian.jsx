@@ -1,196 +1,125 @@
-import React,{
-    useEffect,
-    useState
-} from "react";
-
-
-import {
-    CheckCircle,
-    Save,
-    ClipboardCheck
-} from "lucide-react";
-
-
-import "./Penilaian.css";
-
-
-
-const API_BASE =
-"http://localhost:5000";
-
+import React, { useEffect, useState } from "react";
 
 
 export default function Penilaian(){
 
 
+const [indikator,setIndikator] = useState([]);
 
-const [indikator,setIndikator]=useState([]);
+const [nilai,setNilai] = useState({});
 
-
-const [nilai,setNilai]=useState({});
-
-
-const [total,setTotal]=useState(0);
+const [total,setTotal] = useState(0);
 
 
-const [loading,setLoading]=useState(false);
+const opd_id = 1;
 
 
 
-
-const user =
-JSON.parse(
-localStorage.getItem("user")
-);
-
-
-
-const opd_id =
-user?.opd_id;
-
-
-
-
-
+// ==========================
+// LOAD DATA
+// ==========================
 
 useEffect(()=>{
 
-
-if(opd_id){
-
-loadData();
-
-}
-
+    ambilData();
 
 },[]);
 
 
 
-
-
-
-
-
-
-function headers(){
-
-
-return{
-
-"Content-Type":"application/json",
-
-Authorization:
-
-`Bearer ${localStorage.getItem("token")}`
-
-};
-
-
-}
-
-
-
-
-
-
-
-async function loadData(){
-
+async function ambilData(){
 
 
 try{
 
 
+// ==========================
+// AMBIL INDIKATOR
+// ==========================
 
-const indikatorRes =
-await fetch(
+const indikatorRes = await fetch(
+"http://localhost:5000/api/indikator"
+);
 
-`${API_BASE}/api/indikator`
 
+const indikatorJson = await indikatorRes.json();
+
+
+
+console.log(
+"HASIL INDIKATOR:",
+indikatorJson
 );
 
 
 
-const indikatorData =
-await indikatorRes.json();
+if(indikatorJson.success){
 
-
-
-
-let list=[];
-
-
-if(indikatorData.success){
-
-list=indikatorData.data;
-
-}
-else if(Array.isArray(indikatorData)){
-
-
-list=indikatorData;
-
+    setIndikator(
+        indikatorJson.data
+    );
 
 }
 
 
 
-setIndikator(list);
+
+// ==========================
+// AMBIL NILAI
+// ==========================
 
 
+const nilaiRes = await fetch(
 
-
-
-
-const nilaiRes =
-await fetch(
-
-`${API_BASE}/api/penilaian/${opd_id}`,
-
-{
-
-headers:headers()
-
-}
+`http://localhost:5000/api/penilaian/${opd_id}`
 
 );
 
 
-
-const nilaiData =
-await nilaiRes.json();
+const nilaiJson = await nilaiRes.json();
 
 
 
+console.log(
+"HASIL NILAI:",
+nilaiJson
+);
 
 
-if(nilaiData.success){
 
+if(nilaiJson.success){
 
 
 let temp={};
 
 
-
-nilaiData.data.forEach(item=>{
+nilaiJson.data.forEach(item=>{
 
 
 temp[item.indikator_id]={
 
 
 nilai_input:
-
-item.nilai_input,
+item.nilai_input || 0,
 
 
 nilai_bobot:
+item.nilai_bobot || 0,
 
-item.nilai_bobot
+
+catatan:
+item.catatan || "",
+
+
+bukti_dukung:
+item.bukti_dukung || "",
+
+
+status:
+item.status || "Draft"
 
 
 };
-
 
 
 });
@@ -200,31 +129,69 @@ item.nilai_bobot
 setNilai(temp);
 
 
+
 hitungTotal(temp);
 
 
-}
-
-
 
 }
+
+
+
+}
+
 
 catch(error){
 
-console.log(error);
+console.error(
+"ERROR LOAD:",
+error
+);
+
+
+}
+
 
 }
 
 
 
+// ==========================
+// HITUNG TOTAL
+// ==========================
+
+function hitungTotal(data){
+
+
+let jumlah=0;
+
+
+Object.values(data)
+.forEach(item=>{
+
+
+jumlah += Number(
+item.nilai_bobot || 0
+);
+
+
+});
+
+
+
+setTotal(
+jumlah.toFixed(2)
+);
+
+
 }
 
 
 
 
-
-
-
+// ==========================
+// INPUT NILAI
+// ==========================
 
 
 function ubahNilai(item,value){
@@ -236,39 +203,25 @@ Number(value);
 
 
 
-if(angka<0)
-
-angka=0;
-
-
-
 if(angka>100)
-
 angka=100;
 
 
 
+if(angka<0)
+angka=0;
 
 
 
-const bobot =
-Number(item.bobot);
+let bobot =
+
+angka *
+Number(item.bobot)
+/100;
 
 
 
-
-const nilaiBobot =
-
-(
-angka*bobot
-)/100;
-
-
-
-
-
-
-const data={
+const update={
 
 
 ...nilai,
@@ -277,14 +230,15 @@ const data={
 [item.id]:{
 
 
-nilai_input:
+...nilai[item.id],
 
+
+nilai_input:
 angka,
 
 
 nilai_bobot:
-
-nilaiBobot
+bobot
 
 
 }
@@ -294,56 +248,11 @@ nilaiBobot
 
 
 
-
-setNilai(data);
-
-
-hitungTotal(data);
+setNilai(update);
 
 
 
-}
-
-
-
-
-
-
-
-
-
-function hitungTotal(data){
-
-
-
-let totalNilai=0;
-
-
-
-Object.values(data)
-
-.forEach(item=>{
-
-
-totalNilai +=
-
-Number(
-item.nilai_bobot || 0
-);
-
-
-
-});
-
-
-
-setTotal(
-
-Number(
-totalNilai.toFixed(2)
-)
-
-);
+hitungTotal(update);
 
 
 
@@ -353,97 +262,74 @@ totalNilai.toFixed(2)
 
 
 
+// ==========================
+// CATATAN
+// ==========================
+
+
+function ubahCatatan(id,value){
 
 
 
-async function simpan(){
+const update={
 
 
+...nilai,
 
-if(!opd_id){
 
-alert(
-"OPD tidak ditemukan"
-);
+[id]:{
 
-return;
+
+...nilai[id],
+
+
+catatan:value
+
 
 }
-
-
-
-const payload =
-
-indikator.map(item=>{
-
-
-const itemNilai =
-
-nilai[item.id]
-
-||
-
-{
-
-nilai_input:0,
-
-nilai_bobot:0
-
-};
-
-
-
-return{
-
-
-opd_id,
-
-
-indikator_id:item.id,
-
-
-nilai_input:
-
-itemNilai.nilai_input,
-
-
-nilai_bobot:
-
-itemNilai.nilai_bobot
 
 
 };
 
 
 
-});
+setNilai(update);
 
 
+}
+
+
+
+
+
+// ==========================
+// BUKTI DUKUNG
+// ==========================
+
+
+async function uploadBukti(id,file){
+
+const formData = new FormData();
+
+formData.append(
+"file",
+file
+);
 
 
 
 try{
 
 
-setLoading(true);
+const response = await fetch(
 
-
-
-const response =
-
-await fetch(
-
-`${API_BASE}/api/penilaian`,
+"http://localhost:5000/api/upload",
 
 {
 
 method:"POST",
 
-headers:headers(),
-
-body:
-
-JSON.stringify(payload)
+body:formData
 
 }
 
@@ -452,44 +338,294 @@ JSON.stringify(payload)
 
 
 const result =
-
 await response.json();
 
 
 
-alert(
-result.message
+console.log(
+"HASIL UPLOAD:",
+result
 );
 
 
 
-loadData();
+if(result.success){
 
+
+setNilai({
+
+...nilai,
+
+
+[id]:{
+
+...nilai[id],
+
+bukti_dukung:
+result.filename
+
+}
+
+});
+
+
+alert(
+"Upload berhasil"
+);
+
+
+}
+
+
+}
+catch(error){
+
+console.log(error);
+
+alert(
+"Upload gagal"
+);
+
+}
+
+
+}
+
+
+
+
+
+// ==========================
+// SIMPAN
+// ==========================
+
+async function uploadBukti(id,file){
+
+if(!file){
+return;
+}
+
+
+const formData = new FormData();
+
+formData.append(
+"file",
+file
+);
+
+
+
+try{
+
+
+const response = await fetch(
+
+"http://localhost:5000/api/upload",
+
+{
+
+method:"POST",
+
+body:formData
+
+}
+
+);
+
+
+
+const result = await response.json();
+
+
+
+console.log(
+"HASIL UPLOAD:",
+result
+);
+
+
+
+if(result.success){
+
+
+setNilai({
+
+...nilai,
+
+[id]:{
+
+...nilai[id],
+
+bukti_dukung:
+result.filename
+
+}
+
+});
+
+
+alert(
+"Bukti berhasil diupload"
+);
+
+
+}
 
 
 }
 
 catch(error){
 
-
 console.log(error);
+
+alert(
+"Upload gagal"
+);
+
+}
+
+
+}
+
+async function simpan(){
+
+
+
+const payload = indikator.map(item=>{
+
+
+return{
+
+
+opd_id:
+
+
+opd_id,
+
+
+
+indikator_id:
+
+
+item.id,
+
+
+
+nilai_input:
+
+nilai[item.id]?.nilai_input || 0,
+
+
+
+nilai_bobot:
+
+nilai[item.id]?.nilai_bobot || 0,
+
+
+
+catatan:
+
+nilai[item.id]?.catatan || "",
+
+
+
+bukti_dukung:
+
+nilai[item.id]?.bukti_dukung || "",
+
+
+
+status:
+
+nilai[item.id]?.status || "Draft"
+
+
+};
+
+
+});
+
+
+
+
+console.log(
+"PAYLOAD:",
+payload
+);
+
+
+
+
+try{
+
+
+const response = await fetch(
+
+"http://localhost:5000/api/penilaian",
+
+{
+
+method:"POST",
+
+
+headers:{
+
+
+"Content-Type":
+
+"application/json"
+
+
+},
+
+
+body:
+
+JSON.stringify(payload)
+
+
+}
+
+);
+
+
+
+const result =
+await response.json();
+
+
+
+console.log(
+"HASIL SIMPAN:",
+result
+);
+
 
 
 alert(
-"Gagal menyimpan penilaian"
+"Penilaian berhasil disimpan"
+);
+
+
+
+}
+
+
+catch(error){
+
+
+console.error(
+error
+);
+
+
+alert(
+"Gagal menyimpan data"
 );
 
 
 }
 
-finally{
-
-
-setLoading(false);
-
-
-}
-
 
 
 }
@@ -498,172 +634,48 @@ setLoading(false);
 
 
 
-
-
-
-
-const jumlahTerisi =
-
-indikator.filter(item=>
-
-nilai[item.id]?.nilai_input
-
-!==undefined
-
-).length;
-
-
-
-
-const progress =
-
-indikator.length===0
-
-?
-
-0
-
-:
-
-Math.round(
-
-jumlahTerisi /
-
-indikator.length *
-
-100
-
-);
-
-
-
-
-
-
-
+// ==========================
+// TAMPILAN
+// ==========================
 
 
 return(
 
 
-<div className="penilaian-page">
-
-
-
-
-
-<div className="page-header">
-
-
-<div>
+<div style={{
+padding:"30px"
+}}>
 
 
 <h1>
-
-<ClipboardCheck/>
-
- Penilaian IKPD
-
+Penilaian IKPD
 </h1>
 
 
-<p>
 
-Evaluasi indikator kinerja perangkat daerah tahun 2026
+<h2>
 
-</p>
+Total Nilai : {total}
 
-
-</div>
-
-
-
-<div className="score-box">
-
-
-Total Nilai
-
-
-<strong>
-
-{total}
-
-</strong>
-
-
-</div>
-
-
-
-</div>
+</h2>
 
 
 
 
+<table
 
+border="1"
 
+cellPadding="10"
 
-<div className="progress-card">
+width="100%"
 
-
-<div>
-
-
-Progress Penilaian
-
-<strong>
-
-{progress}%
-
-</strong>
-
-
-</div>
-
-
-<div className="progress-bar">
-
-
-<span
-
-style={{
-
-width:`${progress}%`
-
-}}
-
-/>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<div className="table-card">
-
-
-
-<table>
+>
 
 
 <thead>
 
 <tr>
-
-
-<th>
-Status
-</th>
-
 
 <th>
 Kode
@@ -690,11 +702,19 @@ Nilai Bobot
 </th>
 
 
+<th>
+Catatan
+</th>
+
+
+<th>
+Bukti Dukung
+</th>
+
+
 </tr>
 
 </thead>
-
-
 
 
 
@@ -706,35 +726,7 @@ Nilai Bobot
 indikator.map(item=>(
 
 
-
 <tr key={item.id}>
-
-
-<td>
-
-
-{
-
-nilai[item.id]
-
-?
-
-<CheckCircle
-
-size={20}
-
-/>
-
-:
-
-""
-
-}
-
-
-</td>
-
-
 
 
 <td>
@@ -755,9 +747,10 @@ size={20}
 
 <td>
 
-{item.bobot}%
+{item.bobot}
 
 </td>
+
 
 
 
@@ -776,19 +769,18 @@ min="0"
 max="100"
 
 
+
 value={
 
-nilai[item.id]?.nilai_input
-
-??
-
-""
+nilai[item.id]?.nilai_input || ""
 
 }
 
 
 
-onChange={e=>
+
+onChange={(e)=>
+
 
 ubahNilai(
 
@@ -797,6 +789,71 @@ item,
 e.target.value
 
 )
+
+
+}
+
+
+
+/>
+
+
+
+</td>
+
+
+
+
+
+<td>
+
+
+{
+
+Number(
+
+nilai[item.id]?.nilai_bobot || 0
+
+).toFixed(2)
+
+
+}
+
+
+</td>
+
+
+
+
+
+<td>
+
+
+<textarea
+
+
+rows="3"
+
+
+value={
+
+nilai[item.id]?.catatan || ""
+
+}
+
+
+
+onChange={(e)=>
+
+
+ubahCatatan(
+
+item.id,
+
+e.target.value
+
+)
+
 
 }
 
@@ -810,19 +867,57 @@ e.target.value
 
 
 
+
 <td>
+
+<input
+
+type="file"
+
+onChange={(e)=>
+
+uploadBukti(
+
+item.id,
+
+e.target.files[0]
+
+)
+
+}
+
+/>
 
 
 {
 
-nilai[item.id]?.nilai_bobot
+nilai[item.id]?.bukti_dukung &&
 
-??
 
-0
+<div style={{marginTop:"10px"}}>
 
+
+<a
+
+href={
+`http://localhost:5000/uploads/bukti/${nilai[item.id].bukti_dukung}`
 }
 
+target="_blank"
+
+rel="noreferrer"
+
+>
+
+Lihat Bukti
+
+</a>
+
+
+</div>
+
+
+}
 
 
 </td>
@@ -830,7 +925,6 @@ nilai[item.id]?.nilai_bobot
 
 
 </tr>
-
 
 
 ))
@@ -849,48 +943,28 @@ nilai[item.id]?.nilai_bobot
 
 
 
-
-
 <button
 
-className="save-button"
 
 onClick={simpan}
 
-disabled={loading}
+
+style={{
+
+marginTop:"20px",
+
+padding:"10px 20px",
+
+fontSize:"16px"
+
+}}
+
 
 >
 
-
-<Save size={18}/>
-
-
-{
-
-loading
-
-?
-
-"Menyimpan..."
-
-:
-
-"Simpan Penilaian"
-
-}
-
-
+💾 Simpan Penilaian
 
 </button>
-
-
-
-
-
-</div>
-
-
-
 
 
 
@@ -898,6 +972,7 @@ loading
 
 
 );
+
 
 
 }

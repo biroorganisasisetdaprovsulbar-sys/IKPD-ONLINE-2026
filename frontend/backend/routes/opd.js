@@ -40,7 +40,10 @@ router.get("/public",(req,res)=>{
         2
     ) AS nilai_akhir,
 
-
+router.put("/:id",
+verifyToken,
+adminOnly,
+(req,res)=>{
 
     CASE
 

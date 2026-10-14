@@ -1,15 +1,12 @@
-import React,{
+import React, {
     useEffect,
     useState
 } from "react";
 
 
 import {
-    Search,
-    Download,
-    Award,
-    TrendingUp,
-    Building2
+    FileDown,
+    FileSpreadsheet
 } from "lucide-react";
 
 
@@ -17,41 +14,45 @@ import "./Laporan.css";
 
 
 
-const API_BASE =
-"http://localhost:5000";
+const Laporan = () => {
 
 
+const [data,setData] = useState([]);
 
-
-export default function Laporan(){
-
-
-
-const [data,setData]=useState([]);
-
-
-const [summary,setSummary]=useState({
-
-    total:0,
-
-    rata:0,
-
-    tinggi:0,
-
-    rendah:0
-
-});
-
-
-
-const [search,setSearch]=useState("");
 
 
 
 useEffect(()=>{
 
 
-loadData();
+fetch(
+
+"http://localhost:5000/api/opd-public/evaluasi"
+
+)
+
+
+.then(res=>res.json())
+
+
+.then(result=>{
+
+
+setData(
+result.data || []
+);
+
+
+})
+
+
+.catch(()=>{
+
+
+setData([]);
+
+
+});
 
 
 },[]);
@@ -62,27 +63,77 @@ loadData();
 
 
 
-
-async function loadData(){
-
+const exportPDF=()=>{
 
 
-try{
+window.print();
 
 
-
-const token =
-
-localStorage.getItem("token");
+};
 
 
 
 
-const headers={
+const exportExcel=()=>{
 
-Authorization:
 
-`Bearer ${token}`
+let csv =
+
+"Nama OPD,Nilai IKPD,Status\n";
+
+
+data.forEach(item=>{
+
+
+csv +=
+
+`${item.nama_opd},${item.nilai_ikpd},${item.status}\n`;
+
+
+});
+
+
+
+const blob =
+
+new Blob(
+
+[csv],
+
+{
+
+type:
+
+"text/csv"
+
+}
+
+);
+
+
+
+const url=
+
+URL.createObjectURL(blob);
+
+
+
+const link=
+
+document.createElement("a");
+
+
+link.href=url;
+
+
+link.download=
+
+"Laporan_IKPD_2026.csv";
+
+
+link.click();
+
+
 
 };
 
@@ -90,219 +141,26 @@ Authorization:
 
 
 
-const response =
 
-await fetch(
-
-`${API_BASE}/api/dashboard/grafik`,
-
-{
-
-headers
-
-}
-
-);
-
-
-
-const result =
-
-await response.json();
-
-
-
-
-
-if(Array.isArray(result)){
-
-
-setData(result);
-
-
-
-calculateSummary(result);
-
-
-
-}
-
-
-
-}
-
-catch(error){
-
-
-console.log(error);
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-
-function calculateSummary(list){
-
-
-
-if(list.length===0)
-
-return;
-
-
-
-
-const values =
-
-list.map(item=>
-
-Number(
-item.nilai_akhir || 0
-)
-
-);
-
-
-
-
-
-const total =
-
-values.reduce(
-
-(a,b)=>a+b,
-
-0
-
-);
-
-
-
-setSummary({
-
-total:list.length,
-
-rata:
-
-(total/list.length)
-
-.toFixed(2),
-
-
-tinggi:
-
-Math.max(...values),
-
-
-rendah:
-
-Math.min(...values)
-
-});
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function kategori(nilai){
-
-
-
-if(nilai>=90)
-
-return
-
-"Sangat Baik";
-
-
-
-if(nilai>=75)
-
-return
-
-"Baik";
-
-
-
-return
-
-"Perlu Perbaikan";
-
-
-}
-
-
-
-
-
-
-
-const filtered =
-
-data.filter(item=>
-
-item.nama_opd
-
-.toLowerCase()
-
-.includes(
-
-search.toLowerCase()
-
-)
-
-);
-
-
-
-
-
-
-
-
-
-return(
-
-
+return (
 
 <div className="laporan-page">
 
 
 
-
-
-<div className="page-header">
-
-
-<div>
+<div className="laporan-header">
 
 
 <h1>
 
-📄 Laporan IKPD 2026
+Laporan IKPD 2026
 
 </h1>
 
 
 <p>
 
-Rekapitulasi hasil evaluasi perangkat daerah
+Rekap hasil evaluasi Indeks Kematangan Perangkat Daerah
 
 </p>
 
@@ -312,11 +170,38 @@ Rekapitulasi hasil evaluasi perangkat daerah
 
 
 
-<button className="download">
 
-<Download size={18}/>
 
-Export
+<div className="laporan-action">
+
+
+<button
+
+onClick={exportPDF}
+
+>
+
+
+<FileDown/>
+
+Export PDF
+
+
+</button>
+
+
+
+<button
+
+onClick={exportExcel}
+
+>
+
+
+<FileSpreadsheet/>
+
+Export Excel
+
 
 </button>
 
@@ -331,101 +216,7 @@ Export
 
 
 
-
-<div className="summary-grid">
-
-
-
-<Card
-
-icon={<Building2/>}
-
-title="Total OPD"
-
-value={summary.total}
-
-/>
-
-
-
-<Card
-
-icon={<TrendingUp/>}
-
-title="Rata-rata Nilai"
-
-value={summary.rata}
-
-/>
-
-
-
-<Card
-
-icon={<Award/>}
-
-title="Nilai Tertinggi"
-
-value={summary.tinggi}
-
-/>
-
-
-
-<Card
-
-icon={<Award/>}
-
-title="Nilai Terendah"
-
-value={summary.rendah}
-
-/>
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<div className="table-card">
-
-
-
-<div className="search">
-
-
-<Search size={18}/>
-
-
-<input
-
-placeholder="Cari OPD..."
-
-value={search}
-
-onChange={e=>
-
-setSearch(e.target.value)
-
-}
-
-
-/>
-
-
-</div>
-
-
-
-
-
+<div className="laporan-card">
 
 
 <table>
@@ -433,12 +224,11 @@ setSearch(e.target.value)
 
 <thead>
 
-
 <tr>
 
 <th>
 
-Ranking
+No
 
 </th>
 
@@ -452,14 +242,14 @@ Nama OPD
 
 <th>
 
-Nilai
+Nilai IKPD
 
 </th>
 
 
 <th>
 
-Kategori
+Status
 
 </th>
 
@@ -471,15 +261,14 @@ Kategori
 
 
 
-
 <tbody>
-
 
 
 {
 
-filtered.map((item,index)=>(
+data.map(
 
+(item,index)=>(
 
 
 <tr key={index}>
@@ -487,84 +276,46 @@ filtered.map((item,index)=>(
 
 <td>
 
-
-#{index+1}
-
+{index+1}
 
 </td>
 
 
-
 <td>
-
 
 {item.nama_opd}
 
-
 </td>
-
 
 
 <td>
 
+<strong>
 
-{
+{item.nilai_ikpd}
 
-Number(
-
-item.nilai_akhir
-
-)
-
-.toFixed(2)
-
-}
-
-
+</strong>
 
 </td>
 
 
-
-
 <td>
 
+<span>
 
-<span
-
-className="badge"
-
->
-
-
-{
-
-kategori(
-
-Number(
-
-item.nilai_akhir
-
-)
-
-)
-
-}
-
-
+{item.status}
 
 </span>
 
-
 </td>
-
 
 
 </tr>
 
 
+)
 
-))
+)
 
 
 }
@@ -577,76 +328,17 @@ item.nilai_akhir
 </table>
 
 
-
 </div>
 
 
 
 
 
-
-
 </div>
-
 
 );
 
-
-}
-
+};
 
 
-
-
-
-
-function Card({
-
-icon,
-
-title,
-
-value
-
-}){
-
-
-return(
-
-<div className="stat-card">
-
-
-<div>
-
-{icon}
-
-</div>
-
-
-<section>
-
-<p>
-
-{title}
-
-</p>
-
-
-<h2>
-
-{value}
-
-</h2>
-
-
-</section>
-
-
-
-</div>
-
-
-);
-
-
-}
+export default Laporan;

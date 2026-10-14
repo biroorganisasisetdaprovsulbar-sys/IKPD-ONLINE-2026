@@ -1,220 +1,389 @@
-.login-page{
+/* ===========================
+   HALAMAN LOGIN IKPD
+=========================== */
 
-
-min-height:100vh;
-
-
-display:flex;
-
-
-align-items:center;
-
-
-justify-content:center;
-
-
-background:
-
-linear-gradient(
-
-135deg,
-
-#075985,
-
-#0f766e
-
-);
-
-
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #005b87, #0086b8, #004d73);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  overflow: hidden;
+  position: relative;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-
-
-.login-card{
-
-
-width:420px;
-
-
-background:white;
-
-
-padding:40px;
-
-
-border-radius:25px;
-
-
-box-shadow:
-
-0 20px 50px rgba(0,0,0,.2);
-
-
-text-align:center;
-
-
+/* animasi background */
+.login-page::before {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  top: -200px;
+  left: -150px;
+  animation: bergerak 12s infinite alternate;
 }
 
-
-
-
-.login-logo{
-
-
-width:80px;
-
-
-height:80px;
-
-
-margin:auto;
-
-
-background:#075985;
-
-
-color:white;
-
-
-border-radius:20px;
-
-
-display:flex;
-
-
-align-items:center;
-
-
-justify-content:center;
-
-
-font-size:30px;
-
-
-font-weight:800;
-
-
+.login-page::after {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  bottom: -200px;
+  right: -100px;
+  animation: bergerak 15s infinite alternate;
 }
 
-
-
-
-.login-card h1{
-
-
-margin-top:25px;
-
-
+@keyframes bergerak {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(80px);
+  }
 }
 
-
-
-.login-card p{
-
-
-color:#64748b;
-
-
+/* CONTAINER */
+.login-container {
+  position: relative;
+  z-index: 2;
+  width: 95%;
+  max-width: 1250px;
+  display: grid;
+  grid-template-columns: 60% 40%;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
 }
 
+/* ===========================
+   PANEL KIRI
+=========================== */
 
-
-
-
-.login-card form{
-
-
-margin-top:30px;
-
-
-display:flex;
-
-
-flex-direction:column;
-
-
-gap:15px;
-
-
+.login-information {
+  padding: 40px;
+  color: white;
+  height: 85vh;
+  overflow: hidden;
 }
 
-
-
-.login-card input{
-
-
-padding:15px;
-
-
-border-radius:12px;
-
-
-border:1px solid #ddd;
-
-
-font-size:15px;
-
-
+.login-information h3 {
+  margin: 0 0 24px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
 }
 
+/* LIST OPD */
+.opd-list {
+  height: calc(85vh - 80px);
+  overflow-y: auto;
+  padding-right: 10px;
+}
 
+.opd-card {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+  transition: 0.3s ease;
+}
 
+.opd-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.2);
+}
 
+.opd-card h4 {
+  font-size: 17px;
+  margin: 0 0 14px;
+  color: white;
+  font-weight: 700;
+  line-height: 1.4;
+}
 
-.login-card button{
+.nilai-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
 
+.nilai-box span {
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  min-width: 64px;
+  text-align: center;
+}
 
-padding:15px;
+.total-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+}
 
+.total-box b {
+  font-size: 22px;
+  margin-left: 6px;
+}
 
-background:#075985;
+.total-box label {
+  background: white;
+  color: #00638c;
+  padding: 7px 15px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
 
+/* ===========================
+   PANEL KANAN
+=========================== */
 
-color:white;
+.login-panel {
+  background: #eef4f7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 36px 42px;
+}
 
+/* HEADER KANAN */
+.header-login {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 28px;
+}
 
-border:none;
+.brand-title {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
 
+.brand-line {
+  display: block;
+  color: #045c8d;
+  font-weight: 900;
+  letter-spacing: 2px;
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow: 0 3px 12px rgba(4, 92, 141, 0.12);
+}
 
-border-radius:12px;
+.line-1 {
+  font-size: 54px;
+}
 
+.line-2 {
+  font-size: 54px;
+}
 
-display:flex;
+.line-3 {
+  font-size: 46px;
+}
 
+.brand-subtitle {
+  margin: 18px auto 0;
+  color: #27566f;
+  font-size: 24px;
+  line-height: 1.7;
+  font-weight: 600;
+  font-style: italic;
+  font-family: "Brush Script MT", "Segoe Script", "Lucida Handwriting", cursive;
+  letter-spacing: 0.5px;
+  max-width: 500px;
+  text-align: center;
+}
 
-align-items:center;
+/* LOGIN BOX */
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  background: transparent;
+}
 
+.login-box h2 {
+  text-align: center;
+  font-size: 32px;
+  color: #005b87;
+  margin: 0 0 30px;
+  font-weight: 800;
+}
 
-justify-content:center;
+.login-box input {
+  width: 100%;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  border: 1px solid #d5dde3;
+  background: #ffffff;
+  font-size: 16px;
+  outline: none;
+  box-sizing: border-box;
+}
 
+.login-box input:focus {
+  border-color: #0086b8;
+  box-shadow: 0 0 0 3px rgba(0, 134, 184, 0.08);
+}
+
+.login-box button {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #006b9d, #0097d7);
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.login-box button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 107, 157, 0.25);
+}
+
+/* SCROLLBAR */
+.opd-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.opd-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .login-container {
+    grid-template-columns: 1fr;
+  }
+
+  .login-information {
+    height: auto;
+  }
+
+  .opd-list {
+    height: 420px;
+  }
+
+  .line-1,
+  .line-2 {
+    font-size: 42px;
+  }
+
+  .line-3 {
+    font-size: 36px;
+  }
+
+  .brand-subtitle {
+    font-size: 17px;
+  }
+}
+
+/* REKAP OPD */
+
+.rekap-box{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
 
 gap:10px;
 
+margin-bottom:20px;
 
-cursor:pointer;
+}
 
+
+.rekap-item{
+
+background:white;
+
+color:#005b87;
+
+padding:10px;
+
+border-radius:12px;
+
+text-align:center;
+
+}
+
+
+.rekap-item span{
+
+display:block;
+
+font-size:12px;
 
 font-weight:600;
 
+}
+
+
+.rekap-item b{
+
+font-size:24px;
+
+}
+
+
+.rekap-item.total{
+
+border-bottom:4px solid #006b9d;
+
+}
+
+
+.rekap-item.tinggi{
+
+border-bottom:4px solid #16a34a;
+
+}
+
+
+.rekap-item.sedang{
+
+border-bottom:4px solid #eab308;
+
+}
+
+
+.rekap-item.rendah{
+
+border-bottom:4px solid #dc2626;
 
 }
 
 
 
+.nomor-opd{
 
-.error{
+color:#d9f3ff;
 
+font-weight:900;
 
-background:#fee2e2;
-
-
-color:#b91c1c;
-
-
-padding:10px;
-
-
-border-radius:10px;
-
+margin-right:8px;
 
 }

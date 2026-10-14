@@ -1,203 +1,215 @@
-import React,{
+import React, {
     useEffect,
     useState
 } from "react";
+
+
+import {
+
+    ClipboardCheck,
+    Upload,
+    CheckCircle,
+    BarChart3
+
+} from "lucide-react";
+
 
 import "./OPDDashboard.css";
 
 
 
-const API_BASE =
-"http://localhost:5000";
 
+const OPDDashboard =()=>{
 
 
-export default function OPDDashboard(){
+const [data,setData]=useState(null);
 
 
 
-    const [data,setData]=useState([]);
 
+useEffect(()=>{
 
-    const [loading,setLoading]=useState(true);
 
+fetch(
 
+"http://localhost:5000/api/opd/me"
 
+)
 
 
-    const user =
+.then(res=>res.json())
 
-    JSON.parse(
 
-        localStorage.getItem("user")
+.then(result=>{
 
-    );
 
+setData(result.data);
 
 
+})
 
 
+.catch(()=>{
 
-    useEffect(()=>{
 
+setData(null);
 
-        loadDashboard();
 
+});
 
-    },[]);
 
+},[]);
 
 
 
 
 
 
-
-    async function loadDashboard(){
-
-
-
-        try{
-
-
-            const response =
-            await fetch(
-
-                `${API_BASE}/api/opd-dashboard/${user.opd_id}`,
-
-                {
-
-                    headers:{
-
-                        Authorization:
-
-                        `Bearer ${localStorage.getItem("token")}`
-
-                    }
-
-                }
-
-            );
-
-
-
-
-
-
-            const result =
-            await response.json();
-
-
-
-
-
-
-            if(result.success){
-
-
-                setData(
-                    result.data
-                );
-
-
-            }
-
-            else if(Array.isArray(result)){
-
-
-                setData(result);
-
-
-            }
-
-
-
-
-        }
-
-        catch(error){
-
-
-            console.log(
-
-                "Dashboard OPD error",
-
-                error
-
-            );
-
-
-        }
-
-        finally{
-
-
-            setLoading(false);
-
-
-        }
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-    function uploadBukti(id){
-
-
-        window.location.href =
-
-        `/bukti-dukung/${id}`;
-
-
-    }
-
-
-
-
-
-
-
-
-
-    return(
-
+return(
 
 
 <div className="opd-dashboard">
-
-
-
 
 
 <div className="opd-header">
 
 
 <h1>
-Dashboard OPD
-</h1>
 
+Dashboard Perangkat Daerah
+
+</h1>
 
 
 <p>
 
-Selamat datang,
-
-<strong>
-{" "}
-{user?.nama}
-
-</strong>
+Sistem Informasi Evaluasi Indeks Kematangan Perangkat Daerah
 
 </p>
 
+
+</div>
+
+
+
+
+
+<div className="opd-profile">
+
+
+<h2>
+
+{
+
+data?.nama_opd ||
+
+"Perangkat Daerah"
+
+}
+
+</h2>
+
+
+
+<span>
+
+Status Evaluasi:
+
+<b>
+
+Sedang Berjalan
+
+</b>
+
+</span>
+
+
+</div>
+
+
+
+
+
+
+
+<div className="opd-stat">
+
+
+
+<div className="opd-card">
+
+
+<BarChart3/>
+
+
+<h3>
+
+64.70
+
+</h3>
+
+
+<p>
+
+Nilai IKPD
+
+</p>
+
+
+</div>
+
+
+
+
+
+<div className="opd-card">
+
+
+<ClipboardCheck/>
+
+
+<h3>
+
+75%
+
+</h3>
+
+
+<p>
+
+Progress Evaluasi
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+<div className="opd-card">
+
+
+<CheckCircle/>
+
+
+<h3>
+
+40%
+
+</h3>
+
+
+<p>
+
+Verifikasi
+
+</p>
+
+
+</div>
 
 
 </div>
@@ -210,322 +222,84 @@ Selamat datang,
 
 
 
-<div className="opd-card">
-
-
-<h2>
-📊 Evaluasi IKPD OPD
-</h2>
+<div className="opd-menu">
 
 
 
+<div>
 
+<ClipboardCheck/>
 
+<h3>
 
+Penilaian Saya
 
-{
+</h3>
 
-loading
-
-?
 
 <p>
-Mengambil data...
+
+Isi evaluasi indikator IKPD
+
 </p>
 
 
+</div>
 
-:
 
 
-<table>
 
 
 
-<thead>
+<div>
 
 
-<tr>
+<Upload/>
 
 
-<th>
-Kode
-</th>
+<h3>
 
+Bukti Dukung
 
-<th>
-Indikator
-</th>
+</h3>
 
 
-<th>
-Bobot
-</th>
+<p>
 
+Upload dokumen pendukung
 
-<th>
-Nilai
-</th>
+</p>
 
 
-<th>
-Nilai Bobot
-</th>
+</div>
 
 
-<th>
-Status Bukti
-</th>
 
 
-<th>
-Catatan
-</th>
 
 
-<th>
-Aksi
-</th>
 
+<div>
 
 
-</tr>
+<CheckCircle/>
 
 
-</thead>
+<h3>
 
+Status Verifikasi
 
+</h3>
 
 
+<p>
 
+Lihat hasil pemeriksaan
 
+</p>
 
-<tbody>
 
-
-
-{
-
-data.length===0
-
-
-
-?
-
-
-<tr>
-
-<td colSpan="8">
-
-Belum ada indikator
-
-</td>
-
-</tr>
-
-
-
-
-
-:
-
-
-
-data.map(item=>(
-
-
-
-<tr key={item.id}>
-
-
-<td>
-
-{item.kode_indikator}
-
-</td>
-
-
-
-
-
-<td>
-
-{item.nama_indikator}
-
-</td>
-
-
-
-
-
-<td>
-
-{item.bobot}%
-
-</td>
-
-
-
-
-
-<td>
-
-{
-
-item.nilai_input ??
-
-0
-
-}
-
-</td>
-
-
-
-
-
-<td>
-
-{
-
-item.nilai_bobot ??
-
-0
-
-}
-
-</td>
-
-
-
-
-
-
-<td>
-
-
-<span
-
-className={
-
-item.status_bukti==="Diterima"
-
-?
-
-"status-terima"
-
-:
-
-item.status_bukti==="Ditolak"
-
-?
-
-"status-tolak"
-
-:
-
-"status-menunggu"
-
-}
-
->
-
-
-{
-
-item.status_bukti
-
-||
-
-"Belum Upload"
-
-}
-
-
-</span>
-
-
-
-</td>
-
-
-
-
-
-
-
-
-<td>
-
-{
-
-item.catatan
-
-||
-
-"-"
-
-}
-
-</td>
-
-
-
-
-
-
-
-
-<td>
-
-
-
-<button
-
-className="btn-upload"
-
-onClick={()=>uploadBukti(item.id)}
-
->
-
-📤 Upload
-
-</button>
-
-
-
-</td>
-
-
-
-
-
-
-</tr>
-
-
-
-))
-
-
-
-}
-
-
-
-</tbody>
-
-
-
-
-
-</table>
-
-
-
-
-}
-
+</div>
 
 
 
@@ -544,5 +318,7 @@ onClick={()=>uploadBukti(item.id)}
 );
 
 
+};
 
-}
+
+export default OPDDashboard;

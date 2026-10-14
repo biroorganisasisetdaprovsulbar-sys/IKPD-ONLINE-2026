@@ -1,27 +1,52 @@
 import React from "react";
 
 import {
-    Outlet
+Outlet
 } from "react-router-dom";
+
+
+import Sidebar from "../components/Sidebar";
+
+import Header from "../components/Header";
+
+
+import "../components/Layout.css";
+
 
 
 export default function Layout(){
 
-    return (
 
-        <div
-        style={{
-            padding:"30px",
-            fontSize:"30px"
-        }}
-        >
+return (
 
-            LAYOUT BERHASIL
+<div className="app-layout">
 
-            <Outlet />
 
-        </div>
+<Sidebar/>
 
-    );
+
+<div className="main-area">
+
+
+<Header/>
+
+
+<div className="content-area">
+
+
+<Outlet/>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+);
+
 
 }

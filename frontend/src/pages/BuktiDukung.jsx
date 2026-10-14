@@ -1,14 +1,19 @@
-import React,{
+import React, {
     useEffect,
     useState
 } from "react";
 
 
 import {
-    Upload,
-    FileText,
-    Trash2,
-    Eye
+
+UploadCloud,
+
+FileText,
+
+Eye,
+
+Trash2
+
 } from "lucide-react";
 
 
@@ -16,34 +21,15 @@ import "./BuktiDukung.css";
 
 
 
-const API_BASE =
-"http://localhost:5000";
 
 
-
-
-export default function BuktiDukung(){
-
-
-
-const [data,setData]=useState([]);
+const BuktiDukung =()=>{
 
 
 const [file,setFile]=useState(null);
 
 
-const [form,setForm]=useState({
-
-    indikator_id:"",
-    keterangan:""
-
-});
-
-
-
-const [loading,setLoading]=useState(false);
-
-
+const [dokumen,setDokumen]=useState([]);
 
 
 
@@ -52,7 +38,7 @@ const [loading,setLoading]=useState(false);
 useEffect(()=>{
 
 
-loadData();
+loadDokumen();
 
 
 },[]);
@@ -61,118 +47,33 @@ loadData();
 
 
 
+const loadDokumen=()=>{
 
 
-function header(){
+fetch(
+
+"http://localhost:5000/api/dokumen"
+
+)
 
 
-return{
+.then(res=>res.json())
 
 
-Authorization:
-
-`Bearer ${localStorage.getItem("token")}`
+.then(result=>{
 
 
-};
+setDokumen(
 
-
-}
-
-
-
-
-
-
-
-async function loadData(){
-
-
-try{
-
-
-const response =
-
-await fetch(
-
-`${API_BASE}/api/bukti`,
-
-{
-
-headers:header()
-
-}
+result.data || []
 
 );
-
-
-
-const result =
-
-await response.json();
-
-
-
-
-
-if(result.success){
-
-
-setData(
-result.data
-);
-
-
-}
-else if(Array.isArray(result)){
-
-
-setData(result);
-
-
-}
-
-
-}
-
-catch(error){
-
-
-console.log(
-error
-);
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function changeForm(e){
-
-
-setForm({
-
-...form,
-
-[e.target.name]:
-
-e.target.value
 
 
 });
 
 
-}
+};
 
 
 
@@ -180,39 +81,19 @@ e.target.value
 
 
 
+const uploadFile=()=>{
 
 
-async function uploadFile(){
-
-
-
-if(
-
-!file ||
-
-!form.indikator_id
-
-){
-
-
-alert(
-"Lengkapi data dan pilih file"
-);
-
+if(!file)
 
 return;
 
 
-}
 
 
-
-
-
-const formData =
+const formData=
 
 new FormData();
-
 
 
 formData.append(
@@ -225,112 +106,34 @@ file
 
 
 
-formData.append(
 
-"indikator_id",
+fetch(
 
-form.indikator_id
-
-);
-
-
-
-formData.append(
-
-"keterangan",
-
-form.keterangan
-
-);
-
-
-
-
-
-
-try{
-
-
-setLoading(true);
-
-
-
-const response =
-
-await fetch(
-
-`${API_BASE}/api/bukti`,
+"http://localhost:5000/api/dokumen/upload",
 
 {
 
 method:"POST",
 
-headers:header(),
-
 body:formData
 
 }
 
-);
+)
 
 
-
-
-
-const result =
-
-await response.json();
-
-
-
-alert(
-result.message
-);
-
+.then(()=>{
 
 
 setFile(null);
 
+loadDokumen();
 
-setForm({
-
-indikator_id:"",
-
-keterangan:""
 
 });
 
 
-loadData();
-
-
-
-}
-
-
-catch(error){
-
-
-console.log(error);
-
-
-alert(
-"Gagal upload dokumen"
-);
-
-
-}
-
-finally{
-
-
-setLoading(false);
-
-
-}
-
-
-}
+};
 
 
 
@@ -338,52 +141,31 @@ setLoading(false);
 
 
 
+const hapus=(id)=>{
 
 
-async function hapus(id){
+fetch(
 
-
-
-if(
-
-!window.confirm(
-
-"Hapus bukti dukung?"
-
-)
-
-)
-
-return;
-
-
-
-
-
-await fetch(
-
-`${API_BASE}/api/bukti/${id}`,
+`http://localhost:5000/api/dokumen/${id}`,
 
 {
 
-method:"DELETE",
-
-headers:header()
+method:"DELETE"
 
 }
 
-);
+)
+
+.then(()=>{
 
 
-
-loadData();
-
+loadDokumen();
 
 
-}
+});
 
 
-
+};
 
 
 
@@ -393,29 +175,23 @@ loadData();
 return(
 
 
-
-<div className="bukti-page">
-
+<div className="dokumen-page">
 
 
 
-
-<div className="page-header">
-
-
-<div>
+<div className="dokumen-header">
 
 
 <h1>
 
-📁 Bukti Dukung IKPD
+Bukti Dukung IKPD
 
 </h1>
 
 
 <p>
 
-Upload dan kelola dokumen pendukung evaluasi
+Upload dokumen pendukung evaluasi perangkat daerah
 
 </p>
 
@@ -423,116 +199,50 @@ Upload dan kelola dokumen pendukung evaluasi
 </div>
 
 
-</div>
 
 
 
 
 
+<div className="upload-box">
 
 
+<UploadCloud size={45}/>
 
 
-<div className="upload-card">
-
-
-<h2>
+<h3>
 
 Upload Dokumen
 
-</h2>
-
-
-
-
-
-
-<div className="form-grid">
+</h3>
 
 
 <input
 
-name="indikator_id"
-
-placeholder="ID Indikator"
-
-value={form.indikator_id}
-
-onChange={changeForm}
-
-/>
-
-
-
-
-
-<input
-
-name="keterangan"
-
-placeholder="Keterangan dokumen"
-
-value={form.keterangan}
-
-onChange={changeForm}
-
-/>
-
-
-
-
-
-<input
 
 type="file"
 
-onChange={e=>
 
-setFile(
-e.target.files[0]
-)
+onChange={
+
+e=>
+
+setFile(e.target.files[0])
 
 }
 
+
 />
-
-
-
-</div>
-
-
 
 
 
 <button
 
-className="upload-button"
-
 onClick={uploadFile}
-
-disabled={loading}
 
 >
 
-
-<Upload size={18}/>
-
-
-{
-
-loading
-
-?
-
-"Mengupload..."
-
-:
-
-"Upload Bukti"
-
-}
-
-
+Upload
 
 </button>
 
@@ -548,17 +258,14 @@ loading
 
 
 
-<div className="table-card">
-
+<div className="dokumen-list">
 
 
 <h2>
 
-Daftar Bukti Dukung
+Dokumen Saya
 
 </h2>
-
-
 
 
 
@@ -567,40 +274,31 @@ Daftar Bukti Dukung
 
 <thead>
 
-
 <tr>
 
-<th>
-No
-</th>
 
 <th>
-Indikator
-</th>
 
+Dokumen
 
-<th>
-Keterangan
 </th>
 
 
 <th>
-File
-</th>
 
-
-<th>
 Status
+
 </th>
 
 
 <th>
+
 Aksi
+
 </th>
 
 
 </tr>
-
 
 </thead>
 
@@ -614,53 +312,36 @@ Aksi
 
 {
 
-data.length===0
+dokumen.map(
 
-?
-
-
-<tr>
-
-<td colSpan="6">
-
-Belum ada dokumen
-
-</td>
-
-</tr>
+(item,index)=>(
 
 
-:
-
-
-data.map((item,index)=>(
-
-
-
-<tr key={item.id}>
+<tr key={index}>
 
 
 <td>
 
-{index+1}
+
+<FileText size={18}/>
+
+
+{item.nama_file}
+
 
 </td>
 
 
 
-
 <td>
 
-{item.indikator_id}
 
-</td>
+<span className="status-doc">
 
+{item.status}
 
+</span>
 
-
-<td>
-
-{item.keterangan}
 
 </td>
 
@@ -672,7 +353,7 @@ data.map((item,index)=>(
 
 <a
 
-href={item.file}
+href={item.url}
 
 target="_blank"
 
@@ -680,48 +361,21 @@ rel="noreferrer"
 
 >
 
-
-<Eye size={18}/>
+<Eye/>
 
 </a>
 
 
 
-</td>
-
-
-
-
-<td>
-
-
-<span className="status">
-
-{item.status || "Menunggu"}
-
-</span>
-
-
-
-</td>
-
-
-
-
-<td>
 
 
 <button
-
-className="delete"
 
 onClick={()=>hapus(item.id)}
 
 >
 
-
-<Trash2 size={16}/>
-
+<Trash2/>
 
 </button>
 
@@ -731,12 +385,12 @@ onClick={()=>hapus(item.id)}
 
 
 
-
 </tr>
 
 
+)
 
-))
+)
 
 
 }
@@ -744,7 +398,6 @@ onClick={()=>hapus(item.id)}
 
 
 </tbody>
-
 
 
 </table>
@@ -756,11 +409,13 @@ onClick={()=>hapus(item.id)}
 
 
 
-
 </div>
 
 
 );
 
 
-}
+};
+
+
+export default BuktiDukung;

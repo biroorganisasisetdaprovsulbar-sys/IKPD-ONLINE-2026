@@ -3,59 +3,103 @@ import React, {
     useState
 } from "react";
 
+
+import {
+    Building2,
+    CheckCircle,
+    Clock3,
+    BarChart3,
+    TrendingUp,
+    TrendingDown
+} from "lucide-react";
+
+
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    Tooltip,
+    ResponsiveContainer
+} from "recharts";
+
+
 import "./Dashboard.css";
 
 
-const API_BASE =
-"http://localhost:5000";
+
+const Dashboard = () => {
 
 
+const [dataOPD,setDataOPD] = useState([]);
 
-export default function Dashboard(){
+const [loading,setLoading] = useState(true);
 
-
-const [summary,setSummary]=useState({
-
-    total_opd:0,
-    rata_nilai:0,
-    tertinggi:0,
-    terendah:0
-
-});
-
-
-const [ranking,setRanking]=useState([]);
-
-
-const [status,setStatus]=useState([
-
-{
-    kategori:"Belum Evaluasi",
-    total:0
-},
-
-{
-    kategori:"Proses Evaluasi",
-    total:0
-},
-
-{
-    kategori:"Selesai",
-    total:0
-}
-
-]);
-
-
-
-const [loading,setLoading]=useState(true);
 
 
 
 
 useEffect(()=>{
 
-loadDashboard();
+
+fetch(
+"http://localhost:5000/api/opd-public/evaluasi"
+)
+
+
+.then(res=>{
+
+
+if(!res.ok){
+
+throw new Error(
+"API gagal dipanggil"
+);
+
+}
+
+
+return res.json();
+
+
+})
+
+
+.then(result=>{
+
+
+setDataOPD(
+result.data || []
+);
+
+
+})
+
+
+.catch(error=>{
+
+
+console.error(
+"Dashboard Error:",
+error
+);
+
+
+setDataOPD([]);
+
+
+})
+
+
+.finally(()=>{
+
+
+setLoading(false);
+
+
+});
+
+
 
 },[]);
 
@@ -63,153 +107,146 @@ loadDashboard();
 
 
 
-async function loadDashboard(){
 
 
-try{
+// ===============================
+// STATISTIK
+// ===============================
 
 
-const token =
-localStorage.getItem("token");
-
-
-
-const headers={
-
-Authorization:
-`Bearer ${token}`
-
-};
+const totalOPD =
+dataOPD.length;
 
 
 
-// SUMMARY
+const nilaiArray =
 
-const summaryRes =
-await fetch(
+dataOPD.map(
 
-`${API_BASE}/api/dashboard`,
+item=>
 
-{
-headers
-}
+Number(
+item.nilai_ikpd || 0
+)
 
 );
 
 
 
-if(summaryRes.ok){
+
+const rataNilai =
+
+nilaiArray.length > 0
+
+?
+
+(
+
+nilaiArray.reduce(
+(a,b)=>a+b,
+0
+)
+
+/
+
+nilaiArray.length
+
+).toFixed(2)
+
+:
+
+"0.00";
 
 
-const data =
-await summaryRes.json();
 
 
 
-if(data.success){
+const nilaiTertinggi =
 
-setSummary(
-data.data
+nilaiArray.length > 0
+
+?
+
+Math.max(
+...nilaiArray
+)
+
+.toFixed(2)
+
+:
+
+"0.00";
+
+
+
+
+
+const nilaiTerendah =
+
+nilaiArray.length > 0
+
+?
+
+Math.min(
+...nilaiArray
+)
+
+.toFixed(2)
+
+:
+
+"0.00";
+
+
+
+
+
+
+
+// OPD yang sudah memiliki nilai
+
+const selesai =
+
+dataOPD.filter(
+
+item=>
+
+Number(item.nilai_ikpd)>0
+
+).length;
+
+
+
+
+
+const menunggu =
+
+totalOPD - selesai;
+
+
+
+
+
+
+
+// ranking tanpa merubah state
+
+const ranking =
+
+[...dataOPD]
+
+.sort(
+
+(a,b)=>
+
+Number(b.nilai_ikpd)
+
+-
+
+Number(a.nilai_ikpd)
+
 );
 
-}
-
-}
-
-
-
-
-
-// RANKING
-
-
-const rankingRes =
-await fetch(
-
-`${API_BASE}/api/dashboard/grafik`,
-
-{
-headers
-}
-
-);
-
-
-
-if(rankingRes.ok){
-
-
-const data =
-await rankingRes.json();
-
-
-
-if(Array.isArray(data)){
-
-setRanking(data);
-
-}
-
-}
-
-
-
-
-
-// STATUS
-
-
-const statusRes =
-await fetch(
-
-`${API_BASE}/api/dashboard/status`,
-
-{
-headers
-}
-
-);
-
-
-
-if(statusRes.ok){
-
-
-const data =
-await statusRes.json();
-
-
-
-if(Array.isArray(data)){
-
-setStatus(data);
-
-}
-
-}
-
-
-
-}
-
-catch(error){
-
-console.log(
-"API belum tersedia"
-);
-
-
-}
-
-
-finally{
-
-setLoading(false);
-
-}
-
-
-}
 
 
 
@@ -217,58 +254,32 @@ setLoading(false);
 
 
 
-return(
+return (
+
 
 
 <div className="dashboard-page">
 
 
 
+{/* HEADER */}
+
 <div className="dashboard-header">
 
 
-<div>
-
 <h1>
-Dashboard IKPD Online 2026
+IKPD ONLINE 2026
 </h1>
 
 
 <p>
-
-<strong>
-IKPD
-</strong>
-
-<br/>
-
-<strong>
-Indeks Kematangan Perangkat Daerah
-</strong>
-
-<br/>
-
-<i>
-Sistem Evaluasi Kematangan Perangkat Daerah
-</i>
-
+Sistem Informasi Evaluasi Indeks Kematangan Perangkat Daerah
 </p>
 
 
-</div>
-
-
-
-<div className="year-card">
-
-Evaluasi Tahun
-
-<strong>
-2026
-</strong>
-
-
-</div>
+<span>
+Periode Evaluasi Tahun 2026
+</span>
 
 
 </div>
@@ -277,36 +288,136 @@ Evaluasi Tahun
 
 
 
+
+
+{/* CARD STATISTIK */}
 
 
 <div className="stat-grid">
 
 
-<Card
-title="Total OPD"
-value={summary.total_opd}
-/>
 
+<div className="stat-card">
 
-<Card
-title="Rata-rata IKPD"
-value={
-Number(summary.rata_nilai)
-.toFixed(2)
+<Building2/>
+
+<div>
+
+<h3>
+
+{
+loading
+?
+"..."
+:
+totalOPD
 }
-/>
+
+</h3>
+
+<p>
+Total OPD
+</p>
 
 
-<Card
-title="Nilai Tertinggi"
-value={summary.tertinggi}
-/>
+</div>
+
+</div>
 
 
-<Card
-title="Nilai Terendah"
-value={summary.terendah}
-/>
+
+
+
+
+
+
+<div className="stat-card">
+
+<CheckCircle/>
+
+<div>
+
+<h3>
+
+{
+selesai
+}
+
+</h3>
+
+
+<p>
+Selesai Evaluasi
+</p>
+
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+<div className="stat-card">
+
+<Clock3/>
+
+<div>
+
+<h3>
+
+{
+menunggu
+}
+
+</h3>
+
+
+<p>
+Menunggu Evaluasi
+</p>
+
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+<div className="stat-card">
+
+<BarChart3/>
+
+<div>
+
+<h3>
+
+{
+rataNilai
+}
+
+</h3>
+
+
+<p>
+Rata-rata IKPD
+</p>
+
+
+</div>
+
+</div>
+
+
 
 
 </div>
@@ -317,58 +428,211 @@ value={summary.terendah}
 
 
 
-<div className="dashboard-two-column">
+
+{/* NILAI */}
+
+<div className="stat-grid">
 
 
 
-<div className="panel">
+<div className="stat-card">
+
+<TrendingUp/>
+
+<div>
+
+<h3>
+
+{nilaiTertinggi}
+
+</h3>
+
+
+<p>
+Nilai Tertinggi
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div className="stat-card">
+
+<TrendingDown/>
+
+<div>
+
+<h3>
+
+{nilaiTerendah}
+
+</h3>
+
+
+<p>
+Nilai Terendah
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="dashboard-content">
+
+
+
+
+
+
+
+{/* GRAFIK */}
+
+<div className="chart-box">
 
 
 <h2>
-🏆 Ranking IKPD OPD
+Grafik Nilai IKPD OPD
 </h2>
+
+
+
+
+<div className="chart-area">
+
+
+<ResponsiveContainer
+
+width="100%"
+
+height={300}
+
+>
+
+
+<BarChart
+
+data={dataOPD}
+
+>
+
+
+<XAxis
+
+dataKey="nama_opd"
+
+/>
+
+
+<YAxis/>
+
+
+<Tooltip/>
+
+
+<Bar
+
+dataKey="nilai_ikpd"
+
+/>
+
+
+</BarChart>
+
+
+
+</ResponsiveContainer>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+{/* RANKING */}
+
+<div className="ranking-box">
+
+
+<h2>
+Ranking IKPD OPD
+</h2>
+
 
 
 {
 
-ranking.length===0 ?
+ranking.map(
 
-<p>
-Belum ada data ranking
-</p>
-
-
-:
-
-ranking.map((item,index)=>(
+(item,index)=>(
 
 
 <div
+
 className="ranking-item"
-key={index}
+
+key={item.id}
+
 >
 
 
-<span>
-
-#{index+1}
-
-</span>
+<div>
 
 
 <strong>
 
-{item.nama_opd}
+#{index+1}
 
 </strong>
+
+
+<span>
+
+{item.nama_opd}
+
+</span>
+
+
+</div>
+
+
 
 
 <b>
 
 {
 Number(
-item.nilai_akhir || 0
+item.nilai_ikpd
 )
+
 .toFixed(2)
 
 }
@@ -376,11 +640,14 @@ item.nilai_akhir || 0
 </b>
 
 
+
 </div>
 
 
-))
+)
 
+
+)
 
 }
 
@@ -392,51 +659,39 @@ item.nilai_akhir || 0
 
 
 
+</div>
 
 
-<div className="panel">
+
+
+
+
+
+
+
+{/* AKTIVITAS */}
+
+<div className="activity-box">
 
 
 <h2>
-📊 Status Evaluasi
+Aktivitas Sistem
 </h2>
 
 
-{
 
-status.map((item,index)=>(
-
-
-<div
-className="status-item"
-key={index}
->
-
-
-<strong>
-
-{item.kategori}
-
-</strong>
-
-
-<span>
-
-{item.total} OPD
-
-</span>
-
-
+<div>
+✓ Evaluasi IKPD Tahun 2026 sedang berjalan
 </div>
 
 
-))
+<div>
+✓ Data OPD berhasil diperbarui
+</div>
 
 
-}
-
-
-
+<div>
+✓ Verifikasi bukti dukung menunggu proses
 </div>
 
 
@@ -447,54 +702,15 @@ key={index}
 
 
 
-
-{
-
-loading &&
-
-<p>
-Memuat data dashboard...
-</p>
-
-}
-
-
-
 </div>
+
 
 
 );
 
-}
+
+};
 
 
 
-
-function Card({
-
-title,
-
-value
-
-}){
-
-
-return(
-
-<div className="stat-card">
-
-<p>
-{title}
-</p>
-
-
-<h2>
-{value}
-</h2>
-
-
-</div>
-
-);
-
-}
+export default Dashboard;

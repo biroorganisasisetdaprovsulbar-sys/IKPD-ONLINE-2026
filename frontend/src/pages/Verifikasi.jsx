@@ -1,363 +1,189 @@
-import React, {
-    useEffect,
-    useState
-} from "react";
-
-import "./Page.css";
-
-
-
-const API_BASE =
-"http://localhost:5000";
-
+import React, { useEffect, useState } from "react";
 
 
 export default function Verifikasi(){
 
 
+const [data,setData] = useState([]);
 
-    const [data,setData] =
-    useState([]);
+const [detail,setDetail] = useState(null);
 
+const [loading,setLoading] = useState(true);
 
 
 
-    const [loading,setLoading] =
-    useState(false);
+// ==========================
+// AMBIL DATA
+// ==========================
 
+const getData = async()=>{
 
+try{
 
 
+const response = await fetch(
+"http://localhost:5000/api/verifikasi"
+);
 
 
-    useEffect(()=>{
+const result = await response.json();
 
 
-        loadData();
+console.log(
+"DATA VERIFIKASI",
+result
+);
 
 
-    },[]);
+setData(result);
 
 
 
+}catch(error){
 
+console.log(error);
 
+setData([]);
 
 
+}
 
+finally{
 
-    function header(){
+setLoading(false);
 
+}
 
-        return {
 
+};
 
-            Authorization:
 
-            `Bearer ${localStorage.getItem("token")}`
 
 
-        };
 
+useEffect(()=>{
 
-    }
 
+getData();
 
 
+},[]);
 
 
 
 
 
 
-    // =================================
-    // LOAD DATA BUKTI
-    // =================================
 
-    async function loadData(){
+// ==========================
+// UPDATE STATUS
+// ==========================
 
 
-        try{
+const updateStatus = async(status)=>{
 
 
-            const response =
-            await fetch(
+try{
 
-                `${API_BASE}/api/bukti`,
 
-                {
+console.log(
+"UPDATE",
+detail.id,
+status
+);
 
-                    headers:header()
 
-                }
 
-            );
+const response = await fetch(
 
+`http://localhost:5000/api/verifikasi/${detail.id}`,
 
+{
 
+method:"PUT",
 
+headers:{
 
-            const hasil =
-            await response.json();
 
+"Content-Type":"application/json"
 
 
+},
 
 
+body:JSON.stringify({
 
-            if(Array.isArray(hasil)){
+status:status
 
 
-                setData(hasil);
+})
 
 
-            }
+}
 
 
-            else if(hasil.success){
+);
 
 
-                setData(
-                    hasil.data
-                );
 
+const result = await response.json();
 
-            }
 
 
-            else{
+console.log(result);
 
 
-                setData([]);
 
+alert(
+"Status berhasil diperbarui"
+);
 
-            }
 
 
+setDetail(null);
 
-        }
 
 
-        catch(error){
+getData();
 
 
-            console.log(error);
 
+}
+catch(error){
 
-        }
+console.log(error);
 
+alert(
+"Gagal update status"
+);
 
 
-    }
+}
 
 
+};
 
 
 
 
 
 
+return (
 
-    // =================================
-    // PROSES VERIFIKASI
-    // =================================
+<div className="container">
 
 
-    async function prosesVerifikasi(
-
-        id,
-
-        status
-
-    ){
-
-
-
-        let catatan="";
-
-
-
-
-
-        if(status==="Ditolak"){
-
-
-            catatan =
-            window.prompt(
-
-                "Masukkan alasan penolakan"
-
-            );
-
-
-
-
-            if(!catatan){
-
-                return;
-
-            }
-
-
-        }
-
-
-
-
-
-
-
-        try{
-
-
-
-            setLoading(true);
-
-
-
-
-
-
-            const response =
-            await fetch(
-
-                `${API_BASE}/api/bukti/verifikasi/${id}`,
-
-                {
-
-
-                    method:"PUT",
-
-
-                    headers:{
-
-
-                        ...header(),
-
-
-                        "Content-Type":
-
-                        "application/json"
-
-
-                    },
-
-
-
-                    body:
-
-                    JSON.stringify({
-
-
-                        status,
-
-
-                        catatan
-
-
-                    })
-
-
-                }
-
-
-            );
-
-
-
-
-
-
-
-            const hasil =
-            await response.json();
-
-
-
-
-
-
-
-            alert(
-
-                hasil.message ||
-
-                "Verifikasi berhasil"
-
-            );
-
-
-
-
-
-
-            loadData();
-
-
-
-
-
-
-        }
-
-
-        catch(error){
-
-
-            console.log(error);
-
-
-            alert(
-                "Gagal melakukan verifikasi"
-            );
-
-
-        }
-
-
-        finally{
-
-
-            setLoading(false);
-
-
-        }
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-    return(
-
-
-
-<div className="page-container">
-
-
-
-
-
-<div className="page-title">
+<div className="card">
 
 
 <h1>
-✅ Verifikasi Bukti Dukung
+Verifikasi IKPD
 </h1>
 
 
-
 <p>
-Pemeriksaan dokumen yang diinput oleh OPD
+Validasi hasil evaluasi Indeks Kematangan Perangkat Daerah
 </p>
-
 
 
 </div>
@@ -366,18 +192,7 @@ Pemeriksaan dokumen yang diinput oleh OPD
 
 
 
-
-
-
-<div className="card table-card">
-
-
-
-
-
-
-<table>
-
+<table width="100%" border="0">
 
 
 <thead>
@@ -387,27 +202,12 @@ Pemeriksaan dokumen yang diinput oleh OPD
 
 
 <th>
-No
-</th>
-
-
-<th>
 OPD
 </th>
 
 
 <th>
-Indikator
-</th>
-
-
-<th>
-Dokumen
-</th>
-
-
-<th>
-File
+Nilai IKPD
 </th>
 
 
@@ -421,14 +221,10 @@ Aksi
 </th>
 
 
-
 </tr>
 
 
 </thead>
-
-
-
 
 
 
@@ -439,35 +235,50 @@ Aksi
 
 {
 
-data.length===0
-
-
-?
+loading &&
 
 
 <tr>
 
+<td colSpan="4">
 
-<td colSpan="7">
-
-
-Belum ada bukti dukung
-
+Loading...
 
 </td>
-
 
 </tr>
 
 
+}
 
 
 
-:
 
 
-data.map((item,index)=>(
+{
 
+!loading && data.length===0 &&
+
+
+<tr>
+
+<td colSpan="4">
+
+Data verifikasi belum tersedia
+
+</td>
+
+</tr>
+
+
+}
+
+
+
+
+{
+
+data.map((item)=>(
 
 
 <tr key={item.id}>
@@ -475,126 +286,35 @@ data.map((item,index)=>(
 
 <td>
 
-{index+1}
+{item.nama_opd}
 
 </td>
 
 
 
-
-
 <td>
-
-{item.opd}
-
-</td>
-
-
-
-
-
-<td>
-
-{item.indikator}
-
-</td>
-
-
-
-
-
-<td>
-
-{item.nama_dokumen}
-
-</td>
-
-
-
-
-
-<td>
-
-
 
 {
-
-item.file_path
-
+item.nilai === null
 
 ?
-
-
-<a
-
-href={
-
-`${API_BASE}/uploads/${item.file_path}`
-
-}
-
-
-target="_blank"
-
-rel="noreferrer"
-
->
-
-
-Lihat
-
-
-</a>
-
-
-
-:
-
 
 "-"
 
+:
+
+item.nilai
 
 }
 
-
-
 </td>
-
-
-
-
 
 
 
 <td>
 
 
-<span
-
-className={
-
-item.status==="Diterima"
-
-?
-
-"status-terima"
-
-:
-
-item.status==="Ditolak"
-
-?
-
-"status-tolak"
-
-:
-
-"status-menunggu"
-
-
-}
-
->
+<span>
 
 
 {item.status}
@@ -603,13 +323,7 @@ item.status==="Ditolak"
 </span>
 
 
-
 </td>
-
-
-
-
-
 
 
 
@@ -617,84 +331,18 @@ item.status==="Ditolak"
 <td>
 
 
-
 <button
 
-className="btn-terima"
-
-
-disabled={loading}
-
-
-onClick={()=>
-
-
-prosesVerifikasi(
-
-item.id,
-
-"Diterima"
-
-)
-
-
-}
-
+onClick={()=>setDetail(item)}
 
 >
 
-
-✓ Terima
-
+Detail
 
 </button>
-
-
-
-
-
-
-
-
-<button
-
-
-className="btn-tolak"
-
-
-disabled={loading}
-
-
-onClick={()=>
-
-
-prosesVerifikasi(
-
-item.id,
-
-"Ditolak"
-
-)
-
-
-}
-
-
->
-
-
-✕ Tolak
-
-
-</button>
-
-
-
 
 
 </td>
-
-
 
 
 
@@ -705,14 +353,13 @@ item.id,
 ))
 
 
-
 }
 
 
 
+
+
 </tbody>
-
-
 
 
 
@@ -723,20 +370,121 @@ item.id,
 
 
 
+{
+
+detail &&
+
+
+<div className="detail-box">
+
+
+<h2>
+Detail Evaluasi
+</h2>
+
+
+
+<h3>
+
+{detail.nama_opd}
+
+</h3>
+
+
+
+<p>
+
+Nilai IKPD :
+
+{detail.nilai ?? "-"}
+
+</p>
+
+
+
+<p>
+
+Status :
+
+{detail.status}
+
+</p>
+
+
+
+
+
+<button
+
+style={{
+background:"green",
+color:"white",
+marginRight:"10px"
+}}
+
+
+onClick={()=>updateStatus(
+"Disetujui"
+)}
+
+>
+
+✓ Setujui
+
+</button>
+
+
+
+
+
+<button
+
+
+style={{
+background:"red",
+color:"white",
+marginRight:"10px"
+}}
+
+
+onClick={()=>updateStatus(
+"Revisi"
+)}
+
+>
+
+✕ Kembalikan
+
+</button>
+
+
+
+
+
+<button
+
+onClick={()=>setDetail(null)}
+
+>
+
+Tutup
+
+</button>
+
+
+
 </div>
 
 
-
+}
 
 
 
 
 </div>
-
 
 
 );
-
 
 
 }

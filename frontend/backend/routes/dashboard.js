@@ -5,9 +5,9 @@ const db = require("../database");
 
 
 
-
 // =====================================
-// DASHBOARD SUMMARY
+// SUMMARY DASHBOARD
+// GET /api/dashboard
 // =====================================
 
 router.get("/",(req,res)=>{
@@ -18,66 +18,55 @@ const sql = `
 SELECT
 
 
-COUNT(*) AS total_opd,
+COUNT(DISTINCT o.id) AS total_opd,
 
 
 ROUND(
-AVG(total_nilai),
+AVG(x.nilai_akhir),
 2
 ) AS rata_nilai,
 
 
-ROUND(
-MAX(total_nilai),
-2
-) AS tertinggi,
+MAX(x.nilai_akhir) AS tertinggi,
 
 
-ROUND(
-MIN(total_nilai),
-2
-) AS terendah
+MIN(x.nilai_akhir) AS terendah
 
 
 
-FROM
+FROM opd o
+
+
+
+LEFT JOIN
 
 (
 
 SELECT
 
+opd_id,
 
-opd.id,
-
-
-COALESCE(
-
-SUM(
-penilaian.nilai_bobot
-),
-
-0
-
-) AS total_nilai
+ROUND(
+SUM(nilai_bobot),
+2
+) AS nilai_akhir
 
 
-
-FROM opd
-
+FROM penilaian
 
 
-LEFT JOIN penilaian
+GROUP BY opd_id
 
 
-ON opd.id = penilaian.opd_id
+HAVING SUM(nilai_bobot) > 0
 
 
+)
 
-GROUP BY opd.id
+x
 
 
-
-) AS hasil
+ON o.id=x.opd_id
 
 
 
@@ -85,34 +74,20 @@ GROUP BY opd.id
 
 
 
-
-db.query(
-
-sql,
-
-(err,result)=>{
+db.query(sql,(err,result)=>{
 
 
 if(err){
-
-console.log(
-"Dashboard Summary Error:",
-err
-);
-
 
 return res.status(500).json({
 
 success:false,
 
-message:
-err.message
+message:err.message
 
 });
 
-
 }
-
 
 
 
@@ -120,56 +95,15 @@ res.json({
 
 success:true,
 
+data:result[0]
 
-data:{
-
-
-total_opd:
-Number(
-result[0].total_opd || 0
-),
-
-
-
-rata_nilai:
-Number(
-result[0].rata_nilai || 0
-),
-
-
-
-tertinggi:
-Number(
-result[0].tertinggi || 0
-),
-
-
-
-terendah:
-Number(
-result[0].terendah || 0
-)
-
-
-
-}
+});
 
 
 });
 
 
-
-}
-
-
-);
-
-
-
 });
-
-
-
 
 
 
@@ -177,120 +111,90 @@ result[0].terendah || 0
 
 
 // =====================================
-// GRAFIK NILAI OPD
+// RANKING OPD
+// GET /api/dashboard/grafik
 // =====================================
 
 
 router.get("/grafik",(req,res)=>{
 
 
-const sql = `
-
+const sql=`
 
 SELECT
 
 
-opd.nama_opd,
+o.nama_opd,
 
 
 ROUND(
-
 COALESCE(
-
-SUM(
-penilaian.nilai_bobot
-),
-
+SUM(p.nilai_bobot),
 0
-
 ),
-
 2
-
 )
 
 AS nilai_akhir
 
 
 
-FROM opd
+FROM opd o
 
 
 
-LEFT JOIN penilaian
+LEFT JOIN penilaian p
 
-
-ON opd.id =
-penilaian.opd_id
+ON o.id=p.opd_id
 
 
 
 GROUP BY
 
-
-opd.id,
-opd.nama_opd
+o.id,
+o.nama_opd
 
 
 
 ORDER BY
 
-
 nilai_akhir DESC
-
 
 
 `;
 
 
 
-
-db.query(
-
-sql,
-
-(err,result)=>{
+db.query(sql,(err,result)=>{
 
 
 if(err){
-
-
-console.log(
-"Grafik Error:",
-err
-);
-
-
 
 return res.status(500).json({
 
 success:false,
 
-message:
-err.message
+message:err.message
 
 });
-
 
 }
 
 
 
-res.json(result);
+res.json({
 
+success:true,
 
+data:result
 
-}
-
-
-);
-
+});
 
 
 });
 
 
-
+});
 
 
 
@@ -305,8 +209,7 @@ res.json(result);
 router.get("/status",(req,res)=>{
 
 
-const sql = `
-
+const sql=`
 
 SELECT
 
@@ -314,70 +217,68 @@ SELECT
 CASE
 
 
-WHEN total_nilai >= 80
+WHEN nilai >=80
 
 THEN 'Sangat Baik'
 
 
-
-WHEN total_nilai >= 70
+WHEN nilai >=70
 
 THEN 'Baik'
 
 
+WHEN nilai >0
 
-ELSE 'Perlu Perbaikan'
-
-
-
-END AS kategori,
+THEN 'Perlu Perbaikan'
 
 
+ELSE
 
-COUNT(*) AS total
+'Belum Evaluasi'
+
+
+END
+
+AS kategori,
+
+COUNT(*) total
 
 
 
 FROM
 
-(
 
+(
 
 SELECT
 
 
-opd.id,
+o.id,
 
 
 COALESCE(
-
-SUM(
-penilaian.nilai_bobot
-),
-
+SUM(p.nilai_bobot),
 0
+)
 
-) AS total_nilai
-
-
-
-FROM opd
+nilai
 
 
 
-LEFT JOIN penilaian
+FROM opd o
 
 
-ON opd.id =
-penilaian.opd_id
+LEFT JOIN penilaian p
+
+ON o.id=p.opd_id
 
 
-
-GROUP BY opd.id
-
+GROUP BY o.id
 
 
-) AS hasil
+)
+
+x
 
 
 
@@ -389,47 +290,33 @@ GROUP BY kategori
 
 
 
-
-db.query(
-
-sql,
-
-(err,result)=>{
+db.query(sql,(err,result)=>{
 
 
 if(err){
-
-
-console.log(
-"Status Error:",
-err
-);
-
-
 
 return res.status(500).json({
 
 success:false,
 
-message:
-err.message
+message:err.message
 
 });
-
 
 }
 
 
 
-res.json(result);
+res.json({
+
+success:true,
+
+data:result
+
+});
 
 
-
-}
-
-
-);
-
+});
 
 
 });
@@ -438,6 +325,4 @@ res.json(result);
 
 
 
-
-
-module.exports = router;
+module.exports=router;

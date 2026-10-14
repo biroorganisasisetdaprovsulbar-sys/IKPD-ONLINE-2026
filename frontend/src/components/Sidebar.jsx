@@ -1,239 +1,250 @@
 import React from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import {
-    NavLink
-} from "react-router-dom";
-
-
-import {
-    LayoutDashboard,
-    Building2,
-    ClipboardCheck,
-    FileText,
-    FolderOpen,
-    Users,
-    LogOut,
-    Settings
+  LayoutDashboard,
+  Building2,
+  ClipboardList,
+  FileCheck,
+  FolderCheck,
+  BadgeCheck,
+  FileBarChart,
+  Users,
+  LogOut
 } from "lucide-react";
-
 
 import "./Sidebar.css";
 
 
+const Sidebar = () => {
 
 
-export default function Sidebar(){
+  const navigate = useNavigate();
 
 
+  const menu = [
 
-const menu = [
+    {
+      name:"Dashboard",
+      path:"/dashboard",
+      icon:<LayoutDashboard size={20}/>
+    },
 
-
-{
-    title:"Dashboard",
-    path:"/dashboard",
-    icon:<LayoutDashboard size={20}/>
-},
-
-
-{
-    title:"Data OPD",
-    path:"/opd",
-    icon:<Building2 size={20}/>
-},
+    {
+      name:"Data OPD",
+      path:"/opd",
+      icon:<Building2 size={20}/>
+    },
 
 
-{
-    title:"Indikator",
-    path:"/indikator",
-    icon:<ClipboardCheck size={20}/>
-},
+    {
+      name:"Indikator IKPD",
+      path:"/indikator",
+      icon:<ClipboardList size={20}/>
+    },
 
 
-{
-    title:"Penilaian",
-    path:"/penilaian",
-    icon:<ClipboardCheck size={20}/>
-},
+    {
+      name:"Penilaian",
+      path:"/penilaian",
+      icon:<FileCheck size={20}/>
+    },
 
 
-{
-    title:"Bukti Dukung",
-    path:"/bukti",
-    icon:<FolderOpen size={20}/>
-},
+    {
+      name:"Bukti Dukung",
+      path:"/bukti-dukung",
+      icon:<FolderCheck size={20}/>
+    },
 
 
-{
-    title:"Laporan",
-    path:"/laporan",
-    icon:<FileText size={20}/>
-},
+    {
+      name:"Verifikasi",
+      path:"/verifikasi",
+      icon:<BadgeCheck size={20}/>
+    },
 
 
-{
-    title:"Pengguna",
-    path:"/pengguna",
-    icon:<Users size={20}/>
-},
+    {
+      name:"Laporan",
+      path:"/laporan",
+      icon:<FileBarChart size={20}/>
+    },
 
 
-];
+    {
+      name:"Pengguna",
+      path:"/pengguna",
+      icon:<Users size={20}/>
+    }
 
-
-
-
-return(
-
-
-<aside className="sidebar">
+  ];
 
 
 
-    {/* BRAND */}
+  const logout = () => {
 
-    <div className="sidebar-brand">
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
+    navigate("/login");
+
+  };
 
 
-        <div className="logo-box">
 
+
+  return (
+
+    <aside className="sidebar">
+
+
+      {/* LOGO */}
+
+      <div className="sidebar-logo">
+
+
+        <div className="logo-text">
+
+          <span className="logo-main">
             IKPD
-
-        </div>
-
-
-        <div>
-
-            <h2>
-                IKPD ONLINE
-            </h2>
+          </span>
 
 
-            <span>
-                Tahun 2026
-            </span>
+          <span className="logo-sub">
+            ONLINE
+          </span>
 
 
         </div>
 
 
-    </div>
+        <div className="year">
+
+          2026
+
+        </div>
+
+
+      </div>
 
 
 
 
 
-    {/* USER */}
+      {/* USER */}
 
-    <div className="sidebar-user">
+      <div className="sidebar-user">
 
 
         <div className="avatar">
 
-            A
+          A
 
         </div>
 
 
         <div>
 
+          <h4>
+            Administrator
+          </h4>
 
-            <strong>
-                Administrator
-            </strong>
-
-
-            <small>
-                Admin Sistem
-            </small>
-
+          <span>
+            admin
+          </span>
 
         </div>
 
 
-    </div>
+      </div>
 
 
 
 
 
-    {/* MENU */}
 
-    <nav className="sidebar-menu">
+      {/* MENU */}
+
+      <nav className="sidebar-menu">
 
 
-    {
-        menu.map((item,index)=>(
+        {
+          menu.map((item,index)=>(
 
 
             <NavLink
 
-                key={index}
+              key={index}
 
-                to={item.path}
+              to={item.path}
 
+              className={({isActive})=>
 
-                className={({isActive})=>
+                isActive ?
 
-                    isActive
-                    ?
-                    "menu-item active"
-                    :
-                    "menu-item"
+                "menu-item active"
 
-                }
+                :
 
+                "menu-item"
+
+              }
 
             >
 
 
-                {item.icon}
+              {item.icon}
 
 
-                <span>
-                    {item.title}
-                </span>
+              <span>
+                {item.name}
+              </span>
+
 
 
             </NavLink>
 
 
-        ))
-    }
+          ))
+        }
 
 
-
-    </nav>
-
-
-
-
-
-    {/* FOOTER */}
-
-
-    <button
-
-        className="logout-button"
-
-    >
-
-
-        <LogOut size={18}/>
-
-
-        Keluar
-
-
-    </button>
+      </nav>
 
 
 
 
-</aside>
 
 
-);
+
+      {/* FOOTER */}
+
+      <button
+
+        className="logout-btn"
+
+        onClick={logout}
+
+      >
+
+        <LogOut size={20}/>
+
+        <span>
+          Keluar
+        </span>
 
 
-}
+      </button>
+
+
+
+    </aside>
+
+  );
+
+};
+
+
+export default Sidebar;

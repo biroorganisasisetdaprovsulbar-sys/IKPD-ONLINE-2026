@@ -5,77 +5,105 @@ const db = require("../database");
 
 
 
-
-// ======================================================
+// ======================================
 // GET SEMUA INDIKATOR
-// ======================================================
+// ======================================
 
-router.get("/", (req,res)=>{
-
-
-    const sql = `
-
-        SELECT
-
-            indikator.id,
-
-            indikator.kode_indikator,
-
-            indikator.nama_indikator,
-
-            indikator.bobot,
+router.get("/", async(req,res)=>{
 
 
-            tingkat_indikator.id AS tingkat_id,
-
-            tingkat_indikator.tingkat,
-
-            tingkat_indikator.uraian,
-
-            tingkat_indikator.bukti_dukung
+    try{
 
 
-        FROM indikator
+        const [rows] = await db.query(`
+
+            SELECT
+id,
+kode_indikator,
+nama_indikator,
+bobot
+FROM indikator
+ORDER BY id ASC
 
 
-        LEFT JOIN tingkat_indikator
-
-
-        ON indikator.id =
-        tingkat_indikator.indikator_id
+        `);
 
 
 
-        ORDER BY
-
-        indikator.id,
-
-        tingkat_indikator.tingkat
-
-
-    `;
+        res.json(rows);
 
 
 
-    db.query(sql,(err,result)=>{
+    }
+    catch(error){
 
 
-        if(err){
+        console.log(
+            "ERROR GET INDIKATOR:",
+            error
+        );
 
 
-            return res.status(500).json({
+        res.status(500).json({
 
-                success:false,
+            message:error.message
 
-                message:
-                "Gagal mengambil indikator",
-
-                error:err
-
-            });
+        });
 
 
-        }
+
+    }
+
+
+
+});
+
+
+
+
+
+// ======================================
+// TAMBAH INDIKATOR
+// ======================================
+
+
+router.post("/", async(req,res)=>{
+
+
+    try{
+
+
+        const {
+
+            kode,
+            nama_indikator,
+            bobot
+
+        } = req.body;
+
+
+
+        await db.query(
+
+            `
+            INSERT INTO indikator
+            (
+                kode,
+                nama_indikator,
+                bobot
+            )
+
+            VALUES (?,?,?)
+
+            `,
+
+            [
+                kode,
+                nama_indikator,
+                bobot
+            ]
+
+        );
 
 
 
@@ -83,14 +111,28 @@ router.get("/", (req,res)=>{
 
             success:true,
 
-            data:result
-
+            message:
+            "Indikator berhasil ditambahkan"
 
         });
 
 
 
-    });
+    }
+    catch(error){
+
+
+        console.log(error);
+
+
+        res.status(500).json({
+
+            message:error.message
+
+        });
+
+
+    }
 
 
 
@@ -100,319 +142,90 @@ router.get("/", (req,res)=>{
 
 
 
-
-
-
-
-// ======================================================
-// TAMBAH INDIKATOR
-// ======================================================
-
-router.post("/",(req,res)=>{
-
-
-    const {
-
-
-        kode_indikator,
-
-        nama_indikator,
-
-        bobot
-
-
-    } = req.body;
-
-
-
-
-
-    if(
-
-        !kode_indikator ||
-
-        !nama_indikator ||
-
-        !bobot
-
-
-    ){
-
-
-        return res.status(400).json({
-
-            success:false,
-
-            message:
-            "Data indikator belum lengkap"
-
-        });
-
-
-    }
-
-
-
-
-
-
-
-    const cekBobot =
-    Number(bobot);
-
-
-
-    if(
-
-        cekBobot <=0 ||
-
-        cekBobot >100
-
-
-    ){
-
-
-        return res.status(400).json({
-
-            success:false,
-
-            message:
-            "Bobot harus 1 sampai 100"
-
-        });
-
-
-    }
-
-
-
-
-
-
-
-
-    const sql = `
-
-
-        INSERT INTO indikator
-
-        (
-
-            kode_indikator,
-
-            nama_indikator,
-
-            bobot
-
-        )
-
-
-        VALUES(?,?,?)
-
-
-    `;
-
-
-
-
-
-
-    db.query(
-
-        sql,
-
-
-        [
-
-            kode_indikator,
-
-            nama_indikator,
-
-            bobot
-
-        ],
-
-
-
-        (err,result)=>{
-
-
-            if(err){
-
-
-                return res.status(500).json({
-
-                    success:false,
-
-                    message:
-                    "Gagal menyimpan indikator",
-
-                    error:err
-
-                });
-
-
-            }
-
-
-
-
-
-            res.json({
-
-                success:true,
-
-                message:
-                "Indikator berhasil ditambahkan",
-
-                id:
-                result.insertId
-
-
-            });
-
-
-
-        }
-
-
-
-    );
-
-
-
-});
-
-
-
-
-
-
-
-
-
-// ======================================================
+// ======================================
 // UPDATE INDIKATOR
-// ======================================================
-
-router.put("/:id",(req,res)=>{
+// ======================================
 
 
-    const id =
-    req.params.id;
+router.put("/:id", async(req,res)=>{
 
 
-
-    const {
-
-
-        kode_indikator,
-
-        nama_indikator,
-
-        bobot
+    try{
 
 
-    } = req.body;
+        const id=req.params.id;
+
+
+        const {
+
+            kode,
+            nama_indikator,
+            bobot
+
+        }=req.body;
 
 
 
 
+        await db.query(
 
+            `
 
+            UPDATE indikator
 
-    const sql = `
+            SET
 
-
-        UPDATE indikator
-
-
-        SET
-
-
-            kode_indikator=?,
-
+            kode=?,
             nama_indikator=?,
-
             bobot=?
 
 
-
-        WHERE id=?
-
-
-    `;
+            WHERE id=?
 
 
+            `,
 
 
+            [
 
+                kode,
+                nama_indikator,
+                bobot,
+                id
 
+            ]
 
-    db.query(
-
-
-        sql,
-
-
-        [
-
-            kode_indikator,
-
-            nama_indikator,
-
-            bobot,
-
-            id
-
-
-        ],
+        );
 
 
 
-        (err)=>{
+        res.json({
 
+            success:true,
 
-            if(err){
+            message:
+            "Indikator diperbarui"
 
-
-                return res.status(500).json({
-
-                    success:false,
-
-                    message:
-                    "Gagal memperbarui indikator",
-
-                    error:err
-
-
-                });
-
-
-            }
+        });
 
 
 
+    }
+    catch(error){
+
+
+        console.log(error);
+
+
+        res.status(500).json({
+
+            message:error.message
+
+        });
 
 
 
-            res.json({
-
-                success:true,
-
-                message:
-                "Indikator berhasil diperbarui"
-
-
-            });
-
-
-
-        }
-
-
-    );
-
+    }
 
 
 
@@ -422,84 +235,63 @@ router.put("/:id",(req,res)=>{
 
 
 
-
-
-
-
-// ======================================================
+// ======================================
 // DELETE INDIKATOR
-// ======================================================
-
-router.delete("/:id",(req,res)=>{
+// ======================================
 
 
-    const id =
-    req.params.id;
+router.delete("/:id", async(req,res)=>{
 
 
+    try{
 
 
+        await db.query(
 
-    db.query(
+            `
+            DELETE FROM indikator
+            WHERE id=?
 
+            `,
 
-        "DELETE FROM indikator WHERE id=?",
+            [
+                req.params.id
+            ]
 
-
-        [id],
-
-
-
-        (err)=>{
-
-
-            if(err){
-
-
-                return res.status(500).json({
-
-                    success:false,
-
-                    message:
-                    "Indikator gagal dihapus",
-
-                    error:err
-
-                });
-
-
-            }
+        );
 
 
 
+        res.json({
+
+            success:true,
+
+            message:
+            "Indikator dihapus"
+
+        });
 
 
 
-
-            res.json({
-
-                success:true,
-
-                message:
-                "Indikator berhasil dihapus"
+    }
+    catch(error){
 
 
-            });
+        console.log(error);
 
 
+        res.status(500).json({
+
+            message:error.message
+
+        });
 
 
-        }
-
-
-
-    );
+    }
 
 
 
 });
-
-
 
 
 

@@ -7,11 +7,9 @@ const multer = require("multer");
 const path = require("path");
 
 
-
-// =================================
-// KONFIGURASI UPLOAD FILE
-// =================================
-
+// ======================================
+// KONFIGURASI UPLOAD
+// ======================================
 
 const storage = multer.diskStorage({
 
@@ -24,49 +22,63 @@ const storage = multer.diskStorage({
 
     filename:(req,file,cb)=>{
 
-        const namaFile =
-        Date.now()
-        +
-        "-"
-        +
-        file.originalname;
+        const ext = path.extname(file.originalname);
+
+        const nama =
+            Date.now()
+            +
+            ext;
 
 
-        cb(null,namaFile);
+        cb(null,nama);
 
     }
 
-
 });
-
 
 
 const upload = multer({
-
     storage:storage
-
 });
 
 
 
 
-
-
-// =================================
-// GET SEMUA BUKTI
-// =================================
-
+// ======================================
+// GET SEMUA DOKUMEN
+// GET /api/bukti
+// ======================================
 
 router.get("/",(req,res)=>{
 
 
 const sql = `
 
-SELECT *
+SELECT
 
-FROM bukti_dukung
+d.id,
 
-ORDER BY id DESC
+d.opd_id,
+
+o.nama_opd,
+
+d.nama_file,
+
+d.file_path,
+
+d.status
+
+
+FROM dokumen d
+
+
+LEFT JOIN opd o
+
+ON d.opd_id=o.id
+
+
+ORDER BY d.id DESC
+
 
 `;
 
@@ -75,18 +87,25 @@ ORDER BY id DESC
 db.query(sql,(err,result)=>{
 
 
-    if(err){
+if(err){
 
-        console.log(err);
+return res.status(500).json({
 
-        return res.status(500).json(err);
+success:false,
 
-    }
+message:err.message
+
+});
+
+}
 
 
 
-    res.json(result);
+res.json({
 
+success:true,
+
+data:result
 
 });
 
@@ -94,14 +113,17 @@ db.query(sql,(err,result)=>{
 });
 
 
+});
 
 
 
 
-// =================================
-// DETAIL BUKTI
-// =================================
 
+
+// ======================================
+// DETAIL DOKUMEN
+// GET /api/bukti/:id
+// ======================================
 
 router.get("/:id",(req,res)=>{
 
@@ -110,68 +132,123 @@ const id=req.params.id;
 
 
 
+const sql=`
+
+SELECT
+
+d.id,
+
+d.opd_id,
+
+o.nama_opd,
+
+d.nama_file,
+
+d.file_path,
+
+d.status
+
+
+FROM dokumen d
+
+
+LEFT JOIN opd o
+
+ON d.opd_id=o.id
+
+
+WHERE d.id=?
+
+
+`;
+
+
+
 db.query(
 
-`
-SELECT *
-
-FROM bukti_dukung
-
-WHERE id=?
-
-`,
+sql,
 
 [id],
 
 (err,result)=>{
 
 
-    if(err){
+if(err){
 
-        return res.status(500).json(err);
+return res.status(500).json({
 
-    }
+success:false,
+
+message:err.message
+
+});
+
+}
 
 
 
-    res.json(result[0]);
+if(result.length===0){
+
+return res.status(404).json({
+
+success:false,
+
+message:"Dokumen tidak ditemukan"
+
+});
+
+}
+
+
+
+res.json({
+
+success:true,
+
+data:result[0]
+
+});
+
+
+}
+
+
+);
 
 
 });
 
 
-});
 
 
 
 
 
 
-
-
-// =================================
-// UPLOAD BUKTI DUKUNG OPD
-// =================================
+// ======================================
+// UPLOAD DOKUMEN
+// POST /api/bukti
+// ======================================
 
 
 router.post(
+
 "/",
+
 upload.single("file"),
+
 (req,res)=>{
 
 
 const {
 
-opd,
+opd_id,
 
-indikator,
-
-nama_dokumen,
-
-catatan
+nama_file
 
 
 }=req.body;
+
 
 
 
@@ -191,31 +268,32 @@ message:"File belum dipilih"
 
 
 
-const file_path =
-req.file.filename;
+
+const file_path=req.file.filename;
 
 
 
 
-const sql = `
+const sql=`
 
-INSERT INTO bukti_dukung
+INSERT INTO dokumen
 
 (
-opd,
-indikator,
-nama_dokumen,
+
+opd_id,
+
+nama_file,
+
 file_path,
-status,
-catatan
+
+status
 
 )
 
-VALUES(?,?,?,?,?,?)
+
+VALUES(?,?,?,?)
 
 `;
-
-
 
 
 
@@ -225,30 +303,29 @@ sql,
 
 [
 
-opd,
+opd_id,
 
-indikator,
-
-nama_dokumen,
+nama_file || req.file.originalname,
 
 file_path,
 
-"Menunggu",
-
-catatan || null
+"Menunggu"
 
 ],
 
 
-
-(err)=>{
+(err,result)=>{
 
 
 if(err){
 
-console.log(err);
+return res.status(500).json({
 
-return res.status(500).json(err);
+success:false,
+
+message:err.message
+
+});
 
 }
 
@@ -259,8 +336,9 @@ res.json({
 
 success:true,
 
-message:
-"Bukti dukung berhasil dikirim"
+message:"Dokumen berhasil diupload",
+
+id:result.insertId
 
 });
 
@@ -283,9 +361,11 @@ message:
 
 
 
-// =================================
+
+// ======================================
 // VERIFIKASI ADMIN
-// =================================
+// PUT /api/bukti/verifikasi/:id
+// ======================================
 
 
 router.put(
@@ -300,146 +380,33 @@ const id=req.params.id;
 
 const {
 
-status,
-
-catatan
-
+status
 
 }=req.body;
 
 
 
+const sql=`
 
+UPDATE dokumen
 
-// ambil data bukti
-
-db.query(
-
-`
-
-SELECT *
-
-FROM bukti_dukung
+SET status=?
 
 WHERE id=?
 
-`,
+`;
 
-[id],
-
-
-(err,data)=>{
-
-
-if(err){
-
-return res.status(500).json(err);
-
-}
-
-
-
-
-if(data.length===0){
-
-
-return res.status(404).json({
-
-message:"Data tidak ditemukan"
-
-});
-
-
-}
-
-
-
-const bukti=data[0];
-
-
-
-
-
-// update status bukti
 
 
 db.query(
 
-`
-
-UPDATE bukti_dukung
-
-SET
-
-status=?,
-
-catatan=?
-
-WHERE id=?
-
-`,
+sql,
 
 [
 
 status,
 
-catatan,
-
 id
-
-],
-
-
-(err)=>{
-
-
-if(err){
-
-return res.status(500).json(err);
-
-}
-
-
-
-
-
-// ============================
-// JIKA DITERIMA
-// BUAT NILAI AWAL
-// ============================
-
-
-if(status==="Diterima"){
-
-
-
-db.query(
-
-`
-
-SELECT
-
-opd.id AS opd_id,
-
-indikator.id AS indikator_id
-
-
-FROM opd,indikator
-
-
-WHERE
-
-opd.nama_opd=?
-
-AND indikator.kode_indikator=?
-
-`,
-
-[
-
-bukti.opd,
-
-bukti.indikator
 
 ],
 
@@ -449,116 +416,29 @@ bukti.indikator
 
 if(err){
 
-console.log(err);
+return res.status(500).json({
 
-return;
+success:false,
 
-}
+message:err.message
 
-
-
-if(result.length>0){
-
-
-
-db.query(
-
-
-
-[
-
-result[0].opd_id,
-
-result[0].indikator_id
-
-],
-
-
-(err)=>{
-
-
-if(err){
-
-console.log(err);
-
-}
-
-
-}
-
-
-);
-
-
+});
 
 }
 
 
 
-}
+if(result.affectedRows===0){
 
+return res.status(404).json({
 
+success:false,
 
-);
+message:"Dokumen tidak ditemukan"
 
-
-}
-
-
-
-
-
-
-// simpan riwayat jika tabel tersedia
-
-
-db.query(
-
-`
-
-INSERT INTO riwayat_verifikasi
-
-(
-bukti_id,
-status,
-catatan
-)
-
-VALUES(?,?,?)
-
-`,
-
-[
-
-id,
-
-status,
-
-catatan
-
-],
-
-
-(err)=>{
-
-
-if(err){
-
-console.log(
-"Riwayat tidak tersimpan:",
-err.message
-);
+});
 
 }
-
-
-}
-
-
-);
-
-
-
 
 
 
@@ -566,26 +446,16 @@ res.json({
 
 success:true,
 
-message:
-"Verifikasi berhasil"
+message:"Status dokumen berhasil diperbarui"
 
 });
 
 
-
-
 }
 
 
 );
 
-
-
-}
-
-
-
-);
 
 
 }
@@ -599,12 +469,17 @@ message:
 
 
 
-// =================================
-// HAPUS BUKTI
-// =================================
+// ======================================
+// HAPUS DOKUMEN
+// DELETE /api/bukti/:id
+// ======================================
 
 
-router.delete("/:id",(req,res)=>{
+router.delete(
+
+"/:id",
+
+(req,res)=>{
 
 
 const id=req.params.id;
@@ -615,7 +490,7 @@ db.query(
 
 `
 
-DELETE FROM bukti_dukung
+DELETE FROM dokumen
 
 WHERE id=?
 
@@ -624,7 +499,7 @@ WHERE id=?
 [id],
 
 
-(err)=>{
+(err,result)=>{
 
 
 if(err){
@@ -633,7 +508,7 @@ return res.status(500).json({
 
 success:false,
 
-message:"Gagal menghapus data"
+message:err.message
 
 });
 
@@ -641,13 +516,11 @@ message:"Gagal menghapus data"
 
 
 
-
 res.json({
 
 success:true,
 
-message:
-"Bukti berhasil dihapus"
+message:"Dokumen berhasil dihapus"
 
 });
 
@@ -658,8 +531,9 @@ message:
 );
 
 
-});
+}
 
+);
 
 
 

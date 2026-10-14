@@ -1,67 +1,83 @@
-<div className="content-login">
+import { useState } from "react";
+import axios from "axios";
+import API_URL from "./src/config/api";
 
 
-<div className="opd-card">
+function Login(){
+
+const [username,setUsername]=useState("");
+const [password,setPassword]=useState("");
+const [message,setMessage]=useState("");
 
 
-<h2>
-📊 Daftar OPD Hasil Evaluasi
-</h2>
+
+const login = async()=>{
 
 
-<div className="opd-list">
+try{
 
+
+const response = await axios.post(
+
+`${API_URL}/login`,
 
 {
-opd.map((item,index)=>(
+username,
+password
+}
+
+);
 
 
-<div className="opd-item" key={index}>
+
+if(response.data.success){
 
 
-<div>
-<span>No</span>
-<strong>{index+1}</strong>
-</div>
+localStorage.setItem(
+"token",
+response.data.token
+);
 
 
-<div className="nama-opd">
-<span>Nama OPD</span>
-<strong>{item.nama}</strong>
-</div>
+localStorage.setItem(
+"user",
+JSON.stringify(response.data.user)
+);
 
 
-<div>
-<span>Nilai</span>
-<strong className="nilai">
-{item.nilai}
-</strong>
-</div>
+window.location.href="/dashboard";
 
 
-<div>
-<span>Kategori</span>
-<strong className="kategori">
-{item.kategori}
-</strong>
-</div>
+}
+
+else{
 
 
-</div>
+setMessage(response.data.message);
 
 
-))
 }
 
 
-</div>
+
+}
+catch(error){
+
+console.log(error);
+
+setMessage(
+"Server tidak terhubung"
+);
+
+}
 
 
-</div>
+};
 
 
 
 
+return (
 
 <div className="login-box">
 
@@ -72,22 +88,49 @@ opd.map((item,index)=>(
 
 
 <input
+
 placeholder="Username"
+
+value={username}
+
+onChange={(e)=>setUsername(e.target.value)}
+
 />
+
 
 
 <input
+
 type="password"
+
 placeholder="Password"
+
+value={password}
+
+onChange={(e)=>setPassword(e.target.value)}
+
 />
 
 
-<button>
+
+<button onClick={login}>
+
 MASUK
+
 </button>
 
 
-</div>
+<p>{message}</p>
 
 
 </div>
+
+);
+
+
+}
+
+
+export default function Login(){
+
+console.log("LOGIN PAGE AKTIF");

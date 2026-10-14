@@ -1,52 +1,67 @@
 import React from "react";
 
+import {
+    Outlet
+} from "react-router-dom";
+
 
 import Sidebar from "./Sidebar";
 
-import Navbar from "./Navbar";
-
+import Header from "./Header";
 
 import "./Layout.css";
 
 
 
-export default function Layout({children}){
+const Layout = () => {
 
 
-return(
+    return (
+
+        <div className="app-layout">
 
 
-<div className="app-layout">
+            {/* SIDEBAR */}
 
-
-
-<Sidebar />
-
-
-
-<div className="main-area">
-
-
-<Navbar />
+            <Sidebar />
 
 
 
-<div className="content-area">
+            {/* AREA UTAMA */}
 
-{children}
-
-</div>
+            <div className="main-area">
 
 
 
-</div>
+                {/* HEADER */}
+
+                <Header />
 
 
 
-</div>
+
+                {/* CONTENT */}
+
+                <main className="content-area">
 
 
-);
+                    <Outlet />
 
 
-}
+                </main>
+
+
+
+            </div>
+
+
+        </div>
+
+    );
+
+
+};
+
+
+
+export default Layout;

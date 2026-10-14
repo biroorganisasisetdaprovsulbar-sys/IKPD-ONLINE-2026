@@ -1,217 +1,167 @@
-const db =
-require("../config/database");
+const db = require("../database");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 
-const bcrypt =
-require("bcrypt");
+const login = async (req,res)=>{
 
+    try {
 
-const jwt =
-require("jsonwebtoken");
+        const {
+            username,
+            password
+        } = req.body;
 
 
+        if(!username || !password){
 
+            return res.status(400).json({
 
+                success:false,
+                message:"Username dan password wajib diisi"
 
-exports.login =
+            });
 
-(req,res)=>{
+        }
 
 
-const {
+        const sql = `
+            SELECT *
+            FROM users
+            WHERE username=?
+            LIMIT 1
+        `;
 
-username,
 
-password
+        db.query(
+            sql,
+            [username],
+            async(err,result)=>{
 
-}
 
-=
+                if(err){
 
-req.body;
+                    console.error(err);
 
+                    return res.status(500).json({
 
+                        success:false,
+                        message:"Database error"
 
+                    });
 
+                }
 
-const sql =
 
-`
 
-SELECT *
+                if(result.length===0){
 
-FROM users
+                    return res.status(401).json({
 
-WHERE username=?
+                        success:false,
+                        message:"Username atau password salah"
 
-AND status='Aktif'
+                    });
 
-`;
+                }
 
 
 
+                const user=result[0];
 
 
-db.query(
+                const cocok =
+                await bcrypt.compare(
+                    password,
+                    user.password
+                );
 
-sql,
 
-[username],
+                console.log(
+                    "LOGIN:",
+                    user.username,
+                    cocok
+                );
 
-async(err,result)=>{
 
 
-if(err)
+                if(!cocok){
 
-return res.status(500)
+                    return res.status(401).json({
 
-.json({
+                        success:false,
+                        message:"Username atau password salah"
 
-success:false,
+                    });
 
-message:err.message
+                }
 
-});
 
 
+                const token =
+                jwt.sign(
 
+                    {
+                        id:user.id,
+                        role:user.role,
+                        opd_id:user.opd_id
 
+                    },
 
+                    process.env.JWT_SECRET,
 
-if(result.length===0){
+                    {
+                        expiresIn:"8h"
+                    }
 
+                );
 
-return res.json({
 
-success:false,
 
-message:
+                return res.json({
 
-"Username tidak ditemukan"
+                    success:true,
 
-});
+                    message:"Login berhasil",
 
+                    token,
 
-}
+                    user:{
 
+                        id:user.id,
+                        nama:user.nama,
+                        username:user.username,
+                        role:user.role,
+                        opd_id:user.opd_id
 
+                    }
 
+                });
 
 
-const user=result[0];
+            }
+        );
 
 
+    }
+    catch(error){
 
+        console.error(error);
 
 
-const valid =
+        res.status(500).json({
 
-await bcrypt.compare(
+            success:false,
+            message:"Server error"
 
-password,
+        });
 
-user.password
+    }
 
-);
+};
 
 
 
-
-
-if(!valid){
-
-
-return res.json({
-
-success:false,
-
-message:
-
-"Password salah"
-
-});
-
-
-}
-
-
-
-
-
-
-const token =
-
-jwt.sign(
-
-{
-
-
-id:user.id,
-
-
-role:user.role,
-
-
-opd_id:user.opd_id
-
-
-},
-
-
-process.env.JWT_SECRET,
-
-
-{
-
-expiresIn:"8h"
-
-}
-
-
-);
-
-
-
-
-
-
-res.json({
-
-success:true,
-
-
-token,
-
-
-user:{
-
-
-id:user.id,
-
-
-nama:user.nama,
-
-
-role:user.role,
-
-
-opd_id:user.opd_id
-
-
-}
-
-
-
-});
-
-
-
-
-}
-
-
-);
-
-
-
+module.exports={
+    login
 };

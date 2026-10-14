@@ -4,74 +4,81 @@ const router = express.Router();
 const db = require("../database");
 
 
-router.get("/",(req,res)=>{
+// =====================================
+// PUBLIC DAFTAR OPD DAN NILAI IKPD
+// =====================================
+
+router.get("/evaluasi", async(req,res)=>{
+
+    try{
 
 
-const sql = `
+        const [rows] = await db.query(`
 
-SELECT
+            SELECT
 
-o.nama_opd,
+            o.id,
+            o.nama_opd,
 
-ROUND(AVG(p.nilai_input),2) AS nilai_akhir,
+            COALESCE(
+                ROUND(AVG(p.nilai),2),
+                0
+            ) AS nilai_ikpd,
 
+            COALESCE(
+                MAX(p.status),
+                'Belum Evaluasi'
+            ) AS status
 
-CASE
+            FROM opd o
 
-WHEN AVG(p.nilai_input)>=80
-THEN 'Sangat Baik'
+            LEFT JOIN penilaian p
+            ON p.opd_id=o.id
 
+            GROUP BY
+            o.id,
+            o.nama_opd
 
-WHEN AVG(p.nilai_input)>=70
-THEN 'Baik'
-
-
-ELSE 'Perlu Perbaikan'
-
-
-END AS kategori
-
-
-FROM opd o
-
-
-LEFT JOIN penilaian p
-
-ON o.id=p.opd_id
+            ORDER BY o.id ASC
 
 
-GROUP BY o.id,o.nama_opd
+        `);
 
 
-ORDER BY nilai_akhir DESC
+        res.json({
+
+            success:true,
+
+            data:rows
+
+        });
 
 
-`;
+
+    }catch(error){
 
 
-db.query(sql,(err,result)=>{
+        console.log(
+            "ERROR OPD PUBLIC:",
+            error
+        );
 
 
-if(err){
+        res.status(500).json({
 
-return res.status(500).json({
+            success:false,
 
-success:false,
+            message:error.message
 
-message:err.message
+        });
+
+
+
+    }
+
+
 
 });
 
-}
 
-
-res.json(result);
-
-
-});
-
-
-});
-
-
-module.exports=router;
+module.exports = router;

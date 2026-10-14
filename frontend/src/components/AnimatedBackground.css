@@ -1,0 +1,176 @@
+.animated-bg{
+
+
+    position:absolute;
+
+    inset:0;
+
+    overflow:hidden;
+
+    background:
+
+    linear-gradient(
+        135deg,
+        #075985,
+        #0ea5e9,
+        #082f49
+    );
+
+    z-index:0;
+
+}
+
+
+
+/* garis digital */
+
+.grid-lines{
+
+
+    position:absolute;
+
+    inset:0;
+
+
+    background-image:
+
+    linear-gradient(
+        rgba(255,255,255,.08) 1px,
+        transparent 1px
+    ),
+
+    linear-gradient(
+        90deg,
+        rgba(255,255,255,.08) 1px,
+        transparent 1px
+    );
+
+
+    background-size:
+
+    80px 80px;
+
+
+    animation:
+
+    moveGrid 20s linear infinite;
+
+
+}
+
+
+
+@keyframes moveGrid{
+
+
+    from{
+
+        transform:translateY(0);
+
+    }
+
+
+    to{
+
+        transform:translateY(80px);
+
+    }
+
+
+}
+
+
+
+
+
+/* titik */
+
+.particle{
+
+
+    position:absolute;
+
+    bottom:-20px;
+
+    width:6px;
+
+    height:6px;
+
+    background:white;
+
+    border-radius:50%;
+
+    opacity:.6;
+
+
+    animation:
+
+    floatParticle 12s infinite;
+
+
+}
+
+
+
+@keyframes floatParticle{
+
+
+    from{
+
+        transform:
+        translateY(0);
+
+        opacity:0;
+
+    }
+
+
+    20%{
+
+        opacity:.7;
+
+    }
+
+
+    to{
+
+        transform:
+        translateY(-100vh);
+
+        opacity:0;
+
+    }
+
+
+}
+
+
+
+
+.light-effect{
+
+
+    position:absolute;
+
+
+    width:500px;
+
+    height:500px;
+
+
+    background:
+
+    rgba(255,255,255,.15);
+
+
+    filter:
+
+    blur(100px);
+
+
+    top:-100px;
+
+    right:-100px;
+
+
+}
