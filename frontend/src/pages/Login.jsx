@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ikpdData from "../data/ikpdData";
 import "./Login.css";
 
 
 function Login() {
 
-
+const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [search, setSearch] = useState("");
@@ -16,9 +17,29 @@ function Login() {
 
     e.preventDefault();
 
-    alert("Login berhasil");
 
-  }
+    if(username === "" || password === ""){
+
+        alert("Username dan password harus diisi");
+
+        return;
+
+    }
+
+
+    // simpan status login
+
+    localStorage.setItem(
+        "isLogin",
+        "true"
+    );
+
+
+    // pindah ke dashboard
+
+    navigate("/dashboard");
+
+}
 
 
 
