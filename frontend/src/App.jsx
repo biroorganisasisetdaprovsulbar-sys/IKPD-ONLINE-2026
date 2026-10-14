@@ -133,19 +133,11 @@ element={<Verifikasi/>}
 
         path="/"
 
-        element={
-            <Navigate to="/dashboard"/>
+         element={<Navigate to="/login"/>
+
         }
 
     />
-
-<Route
-
-path="/"
-
-element={<Home/>}
-
-/>
 
 
 </Routes>

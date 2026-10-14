@@ -142,8 +142,8 @@ const ikpdData = [
 
 {
   opd:"Badan Pengelolaan Keuangan dan Aset Daerah",
-  variabel:[5,5,4,3,4,3,5,4,4,4,4],
-  total:45,
+  variabel:[5,2,5,2,2,3,4,4,5,4,3],
+  total:39,
   indeks:"Tinggi"
 },
 
@@ -158,16 +158,16 @@ const ikpdData = [
 
 {
   opd:"Badan Kesatuan Bangsa dan Politik Daerah",
-  variabel:[4,4,3,3,3,3,4,4,4,3,4],
-  total:39,
+  variabel:[5,5,3,3,3,3,3,4,5,4,4],
+  total:42,
   indeks:"Tinggi"
 },
 
 
 {
   opd:"Dinas Komunikasi, Informatika, Statistik dan Persandian Daerah",
-  variabel:[5,5,4,4,4,3,5,5,5,4,4],
-  total:48,
+  variabel:[5,2,5,2,2,4,3,4,4,3,4],
+  total:38,
   indeks:"Tinggi"
 },
 
@@ -180,9 +180,9 @@ const ikpdData = [
 },
 
 {
-  opd:"Dinas Koperasi, Usaha Kecil dan Menengah Daerah",
-  variabel:[5,4,3,3,3,3,4,4,4,3,4],
-  total:40,
+  opd:"Dinas Koperasi, dan Usaha Kecil Menengah, Perindustrian dan Perdagangan Daerah",
+  variabel:[5,3,4,2,2,3,5,5,4,4],
+  total:42,
   indeks:"Tinggi"
 },
 
@@ -228,7 +228,7 @@ const ikpdData = [
 
 
 {
-  opd:"Dinas Lingkungan Hidup Daerah",
+  opd:"Dinas Lingkungan Hidup dan Kehutanan Daerah",
   variabel:[5,4,4,3,4,3,4,4,4,4,4],
   total:43,
   indeks:"Tinggi"
